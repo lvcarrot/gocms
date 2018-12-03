@@ -158,8 +158,6 @@ func WriteLog(w io.Writer, p handlers.LogFormatterParams) {
 
 // Start 初始化控制层
 func Start(path string) {
-	// 注册类型
-	pattern := filepath.Join(path, "views", "*.tpl")
 	// 注册自定义函数
 	t.Funcs(template.FuncMap{
 		"date": func(t *time.Time) string {
@@ -187,5 +185,5 @@ func Start(path string) {
 			return template.HTML(runtime.Version())
 		},
 	})
-	t = template.Must(t.ParseGlob(pattern))
+	t = template.Must(t.ParseGlob(filepath.Join(path, "views", "*.tpl")))
 }

@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"reflect"
 
@@ -23,11 +22,7 @@ var (
 func main() {
 	flag.Parse()
 
-	path, err := exec.LookPath(os.Args[0])
-	if err != nil {
-		log.Panicf("gocms service path: %v", err)
-	}
-	path = filepath.Dir(path)
+	path := filepath.Dir(os.Args[0])
 	// 初始化模板
 	handler.Start(path)
 	static := http.StripPrefix("/static/",
@@ -44,7 +39,7 @@ func main() {
 		handler.Error(w, http.StatusMethodNotAllowed, "非法请求")
 	})
 	// 加载配置文件
-	if err = conf.Load(path); err == nil {
+	if err := conf.Load(path); err == nil {
 		if err = model.Open(&conf); err != nil {
 			log.Panic(err)
 		}
