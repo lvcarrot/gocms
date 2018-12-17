@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  {{template "header" "后台登录"}}
+  {{template "header" "后台登录2"}}
   <style type="text/css">
     footer {
       margin-left: 0px !important;

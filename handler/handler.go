@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/Tomasen/realip"
 	"github.com/dragonflylee/gocms/model"
+	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
@@ -30,7 +32,7 @@ const (
 )
 
 var (
-	t           = template.New("")
+	t           *template.Template
 	md5Regexp   = regexp.MustCompile("[a-fA-F0-9]{32}$")
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z0-9]{2,6}$")
 	store       = sessions.NewFilesystemStore(os.TempDir(), securecookie.GenerateRandomKey(32))
@@ -157,9 +159,9 @@ func WriteLog(w io.Writer, p handlers.LogFormatterParams) {
 }
 
 // Start 初始化控制层
-func Start(path string) {
+func Start(path string) error {
 	// 注册自定义函数
-	t.Funcs(template.FuncMap{
+	funcMap := template.FuncMap{
 		"date": func(t *time.Time) string {
 			if t == nil {
 				return "无"
@@ -184,6 +186,26 @@ func Start(path string) {
 		"version": func() template.HTML {
 			return template.HTML(runtime.Version())
 		},
-	})
-	t = template.Must(t.ParseGlob(filepath.Join(path, "views", "*.tpl")))
+	}
+	// 文件监控
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return fmt.Errorf("create watcher: %v", err)
+	}
+	go func() {
+		pattern := filepath.Join(path, "views", "*.tpl")
+		for {
+			select {
+			case e := <-watcher.Events:
+				log.Printf("Watcher loading tpl: %d", e.Op)
+				if t, err = template.New("").Funcs(funcMap).ParseGlob(pattern); err != nil {
+					log.Printf("parse %s failed: %v", e.Name, err)
+				}
+			case err := <-watcher.Errors:
+				log.Printf("Watcher error: %v", err) // No need to exit here
+			}
+		}
+	}()
+	watcher.Events <- fsnotify.Event{}
+	return watcher.Add(filepath.Join(path, "views"))
 }
