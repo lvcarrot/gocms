@@ -47,7 +47,7 @@ func (m *Admin) GobDecode(data []byte) error {
 func (m *Admin) Create() error {
 	m.Email = strings.ToLower(m.Email)
 	m.Headpic = "/static/img/avatar.png"
-	db := db.New().Unscoped().Model(m).
+	db := db.Unscoped().Model(m).
 		Where("email = ?", m.Email).
 		Updates(map[string]interface{}{
 			"group_id":   m.GroupID,
@@ -76,7 +76,7 @@ func (m *Admin) UpdatePasswd(v ...interface{}) error {
 		m.Status = true
 		v = append(v, "status")
 	}
-	return db.New().Model(m).Select("password", v...).Updates(m).Error
+	return db.Model(m).Select("password", v...).Updates(m).Error
 }
 
 // Access 该用户能否访问指定节点
@@ -90,35 +90,32 @@ func (m *Admin) Access(tpl string) bool {
 
 // Login 用户登录
 func Login(email, passwd, ip string) (*Admin, error) {
-	var (
-		db = db.New()
-		m  = &Admin{}
-	)
-	if db = db.Take(m, "email = ?", strings.ToLower(email)); db.Error != nil {
+	var m Admin
+	if err := db.Take(&m, "email = ?", strings.ToLower(email)).Error; err != nil {
 		return nil, errors.New("用户不存在")
 	}
-	if err := db.Related(&m.Group).Error; err != nil {
+	if err := db.Take(&m.Group, m.GroupID).Error; err != nil {
 		return nil, errors.New("用户组不存在")
 	}
 	if m.Status && util.Md5Hash(passwd+util.Md5Hash(m.Salt)) != m.Password {
 		return nil, errors.New("密码不正确")
 	}
-	err := db.UpdateColumns(map[string]interface{}{
+	err := db.Model(&m).UpdateColumns(map[string]interface{}{
 		"last_ip": ip, "last_login": time.Now()}).Error
-	return m, err
+	return &m, err
 }
 
 // GetAdmins 获取用户列表
 func GetAdmins(filter ...func(*gorm.DB) *gorm.DB) ([]*Admin, error) {
 	var list []*Admin
-	err := db.New().Scopes(filter...).Order("id").Find(&list).Error
+	err := db.Scopes(filter...).Order("id").Find(&list).Error
 	return list, err
 }
 
 // GetAdminNum 获取用户数量
 func GetAdminNum(filter ...func(*gorm.DB) *gorm.DB) (int64, error) {
 	var nums int64
-	err := db.New().Model(&Admin{}).Scopes(filter...).Count(&nums).Error
+	err := db.Model(&Admin{}).Scopes(filter...).Count(&nums).Error
 	return nums, err
 }
 
@@ -136,7 +133,7 @@ type AdminLog struct {
 
 // Create 插入日志
 func (m *AdminLog) Create() error {
-	return db.New().Create(m).Error
+	return db.Create(m).Error
 }
 
 // GetLogs 获取日志列表
@@ -151,7 +148,7 @@ func GetLogs(filter ...func(*gorm.DB) *gorm.DB) ([]*AdminLog, error) {
 // GetLogNum 获取日志数量
 func GetLogNum(filter ...func(*gorm.DB) *gorm.DB) (int64, error) {
 	var nums int64
-	err := db.New().Model(&AdminLog{}).Scopes(filter...).Count(&nums).Error
+	err := db.Model(&AdminLog{}).Scopes(filter...).Count(&nums).Error
 	return nums, err
 }
 
