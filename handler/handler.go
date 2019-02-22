@@ -154,8 +154,9 @@ func WriteLog(w io.Writer, p handlers.LogFormatterParams) {
 			u = fmt.Sprint(cookie)
 		}
 	}
-	fmt.Fprintf(w, "%s %s %s %d %d %s %s\n", p.TimeStamp.Format("2006/01/02 15:04:05"), p.Request.Method,
-		p.URL.RequestURI(), p.StatusCode, p.Size, realip.FromRequest(p.Request), u)
+	fmt.Fprintf(w, "%s %s %d %s %d %s (%s) %s\n", p.TimeStamp.Format("2006/01/02 15:04:05"),
+		p.Request.Method, p.StatusCode, p.URL.RequestURI(), p.Size,
+		realip.FromRequest(p.Request), time.Now().Sub(p.TimeStamp), u)
 }
 
 // Start 初始化控制层

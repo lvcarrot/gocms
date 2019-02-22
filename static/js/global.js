@@ -88,6 +88,7 @@ var Admin = {
     if (options.closeInSeconds > 0) {
       setTimeout(function() {
         $('#' + id).remove();
+        window.location.reload();
       }, options.closeInSeconds * 1000);
     }
     return id;
@@ -228,7 +229,7 @@ $(document).ready(function() {
   // 初始化插件
   Admin.init();
   // 表单验证
-  $('.login-box form,.register-box form,.box-body form').each(function(index, form) {
+  $('.login-box form,.register-box form,.box-form form').each(function(index, form) {
     Admin.validate($(form));
   })
   // 模态框请求

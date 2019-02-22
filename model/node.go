@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -184,7 +185,13 @@ func (m *Group) Create() error {
 	if err != nil {
 		return err
 	}
-	return db.Create(m).Error
+	if err = db.Create(m).Error; err != nil {
+		return err
+	}
+	if mapNodes, err = loadNodes(); err != nil {
+		return fmt.Errorf("init nodes failed: %v", err)
+	}
+	return nil
 }
 
 func (m *Group) String() string {

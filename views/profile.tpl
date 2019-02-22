@@ -35,12 +35,12 @@
           </div>
         </div>
 
-        <div class="col-md-9">
+        <div class="col-md-6">
           <div class="box box-warning">
             <div class="box-header with-border">
               <h3 class="box-title">密码安全</h3>
             </div>
-            <div class="box-body">
+            <div class="box-body box-form">
               <form class="form-horizontal" action="/password" method="post">
               {{if not .user.Status}}
                 <div class="form-group">
