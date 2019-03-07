@@ -156,6 +156,11 @@ var Admin = {
         language: "zh-CN"
       });
     }
+    if (window.Sortable) {
+      $('[data-toggle="sortable"]', $container).each(function(i, e) {
+        Sortable.create(e);
+      });
+    }
     if (jQuery().iCheck) {
       $('.icheck :checkbox, .icheck :radio', $container).iCheck({
         checkboxClass: 'icheckbox_minimal-blue',
@@ -209,6 +214,7 @@ var Admin = {
 
 // 模态框内分页
 $(document).on("click", ".modal-content .pagination a,.modal-content .nav-tabs-custom a", function(e) {
+  if ($(e.target).attr('target') == '_blank') return;
   e.preventDefault();
   $(this).parents('.modal-content').load($(this).attr('href'), function() {
     Admin.init($(this));

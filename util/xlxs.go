@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shopspring/decimal"
 	"github.com/tealeg/xlsx"
 )
 
@@ -16,6 +17,9 @@ var (
 	xlsxType = map[reflect.Type]func(v interface{}) string{
 		reflect.TypeOf(time.Time{}): func(v interface{}) string {
 			return v.(time.Time).Format(formatDateTime)
+		},
+		reflect.TypeOf(decimal.Decimal{}): func(v interface{}) string {
+			return v.(fmt.Stringer).String()
 		},
 	}
 )
@@ -71,6 +75,10 @@ func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) {
 		}
 		cell := row.AddCell()
 		if !fieldV.IsValid() {
+			cell.SetString("-")
+			continue
+		}
+		if fieldV.Kind() == reflect.Ptr && fieldV.IsNil() {
 			cell.SetString("-")
 			continue
 		}
