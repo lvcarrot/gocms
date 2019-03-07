@@ -35,7 +35,7 @@
           </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="box box-warning">
             <div class="box-header with-border">
               <h3 class="box-title">密码安全</h3>
@@ -53,13 +53,13 @@
               {{end}}
                 <div class="form-group">
                   <label class="col-sm-3 control-label">新密码</label>
-                  <div class="col-sm-5">
+                  <div class="col-sm-8">
                     <input name="password" type="password" id="register_password" class="form-control input-medium" placeholder="请输入新密码" data-rule="{'regexPasswd':true}" required>
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="col-sm-3 control-label">确认密码</label>
-                  <div class="col-sm-5">
+                  <div class="col-sm-8">
                     <input name="rpasswd" type="password" class="form-control input-medium" data-rule="{'equalTo':'#register_password'}" data-message="{'equalTo':'两次输入的密码不一致'}" placeholder="请再次输入新密码" required>
                   </div>
                 </div>
