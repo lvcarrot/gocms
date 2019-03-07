@@ -77,14 +77,8 @@
   {{template "footer"}}
   <script type="text/javascript">
     var options = {
-      'MySQL': {
-        'port': 3306,
-        'user': 'root'
-      },
-      'Postgres': {
-        'port': 5432,
-        'user': 'postgres'
-      }
+      'MySQL': { 'port': 3306, 'user': 'root' },
+      'Postgres': { 'port': 5432, 'user': 'postgres' }
     };
     $(document).ready(function () {
       var select = $('select[name="type"]');

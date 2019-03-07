@@ -199,7 +199,7 @@ func Start(path string) error {
 		for {
 			select {
 			case e := <-watcher.Events:
-				log.Printf("Watcher loading tpl: %d", e.Op)
+				log.Printf("load %s: %d", filepath.Base(e.Name), e.Op)
 				if t, err = template.New("").Funcs(funcMap).ParseGlob(pattern); err != nil {
 					log.Printf("parse %s failed: %v", e.Name, err)
 				}
