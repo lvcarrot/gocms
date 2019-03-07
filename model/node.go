@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/dragonflylee/gocms/util"
+	"gocms/util"
 )
 
 // NodeType 节点类型

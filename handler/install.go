@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"strings"
 
+	"gocms/model"
+
 	"github.com/Tomasen/realip"
-	"github.com/dragonflylee/gocms/model"
 	"github.com/gorilla/mux"
 )
 

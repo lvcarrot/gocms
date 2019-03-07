@@ -8,7 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dragonflylee/gocms/util"
+	"gocms/util"
+
 	"github.com/jinzhu/gorm"
 )
 

@@ -8,8 +8,10 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/dragonflylee/gocms/handler"
-	"github.com/dragonflylee/gocms/model"
+	"gocms/handler"
+	"gocms/model"
+
+	"github.com/dchest/captcha"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -58,6 +60,8 @@ func main() {
 	// 登录相关
 	r.Handle("/", handler.Check(http.HandlerFunc(handler.Home)))
 	r.Handle("/login", handler.Limit(2, handler.Login)).Methods(http.MethodPost)
+	r.Handle("/captcha/{png}", captcha.Server(120, 35)).Methods(http.MethodGet)
+
 	r.HandleFunc("/login", handler.Login).Methods(http.MethodGet)
 	r.HandleFunc("/logout", handler.Logout)
 	r.HandleFunc("/password", handler.Password).Methods(http.MethodPost)

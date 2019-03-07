@@ -15,8 +15,9 @@ import (
 	"sync"
 	"time"
 
+	"gocms/model"
+
 	"github.com/Tomasen/realip"
-	"github.com/dragonflylee/gocms/model"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"

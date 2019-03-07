@@ -6,16 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dragonflylee/gocms/model"
-	"github.com/dragonflylee/gocms/util"
+	"gocms/model"
+	"gocms/util"
+
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
-
-// Home 首页
-func Home(w http.ResponseWriter, r *http.Request) {
-	rLayout(w, r, "index.tpl", nil)
-}
 
 // Profile 个人中心
 func Profile(w http.ResponseWriter, r *http.Request) {
