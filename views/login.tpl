@@ -41,11 +41,25 @@
             <button type="submit" class="btn btn-primary btn-block btn-flat">登录</button>
           </div>
         </div>
-        <img class="img-responsive" src="/captcha/{{.captcha}}.png">
+        <img class="img-responsive" src="/captcha/{{.captcha}}.png?">
       </form>
     </div>
   </div>
-  {{template "footer"}}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.9/js/adminlte.min.js"></script>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.10.0/js/md5.min.js"></script>
+  <script src="/static/js/global.js?v=20181213" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(document).on('click', 'img', function (e) {
+      var src = $(e.target).attr('src');
+      $(e.target).attr('src', src.substr(0, src.indexOf('?') + 1) +
+        'reload=' + (new Date()).getTime());
+    })
+  </script>
 </body>
 
 </html>
