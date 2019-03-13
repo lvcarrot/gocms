@@ -64,12 +64,18 @@ func aLog(r *http.Request, format string, a ...interface{}) error {
 
 func jSuccess(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"code": http.StatusOK, "data": data})
+	json.NewEncoder(w).Encode(struct {
+		Code int         `json:"code"`
+		Data interface{} `json:"data,omitempty"`
+	}{Code: http.StatusOK, Data: data})
 }
 
-func jFailed(w http.ResponseWriter, code int64, format string, a ...interface{}) {
+func jFailed(w http.ResponseWriter, code int, format string, a ...interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"code": code, "msg": fmt.Sprintf(format, a...)})
+	json.NewEncoder(w).Encode(struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg,omitempty"`
+	}{Code: code, Msg: fmt.Sprintf(format, a...)})
 }
 
 // rLayout 渲染模板
