@@ -175,7 +175,7 @@ func (n *Node) HasGroup(id int64) bool {
 // Group 用户组
 type Group struct {
 	ID    int64   `gorm:"primary_key;auto_increment"`
-	Name  string  `gorm:"size:64;unique_index;not null"`
+	Name  string  `gorm:"size:64;unique;not null"`
 	Nodes []*Node `gorm:"many2many:node_groups;association_autoupdate:false"`
 }
 

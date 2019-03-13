@@ -14,8 +14,8 @@
 <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
 <link href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" rel="stylesheet">
 
-<link href="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.9/css/AdminLTE.min.css" rel="stylesheet">
-<link href="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.9/css/skins/_all-skins.min.css" rel="stylesheet">
+<link href="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/css/AdminLTE.min.css" rel="stylesheet">
+<link href="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/css/skins/_all-skins.min.css" rel="stylesheet">
 <link href="/static/css/custom.min.css?v=20190214" rel="stylesheet" type="text/css">
 
 {{html "<!--[if lt IE 9]>"}}
@@ -106,7 +106,7 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.9/js/adminlte.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/js/adminlte.min.js"></script>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
@@ -121,7 +121,7 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
 
-<script src="/static/js/global.js?v=20181213" type="text/javascript"></script>
+<script src="/static/js/global.js?v=20190101" type="text/javascript"></script>
 {{end}}
 
 {{define "sidebar"}}
@@ -181,16 +181,16 @@
 </div>
 <div class="modal" id="modal-confirm">
   <div class="modal-dialog modal-sm">
-    <div class="modal-content">
+    <form class="modal-content">
       <div class="modal-header">
         <a class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
         <h4 class="modal-title">确定？</h4>
       </div>
       <div class="modal-footer">
         <a class="btn btn-default" data-dismiss="modal">取消</a>
-        <a type="submit" class="btn btn-danger">确定</a>
+        <button type="submit" class="btn btn-danger">确定</button>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 {{end}}

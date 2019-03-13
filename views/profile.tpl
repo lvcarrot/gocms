@@ -63,8 +63,8 @@
                   <div class="form-group">
                     <label class="col-sm-3 control-label">确认密码</label>
                     <div class="col-sm-8">
-                      <input name="rpasswd" type="password" class="form-control input-medium" data-rule="{'equalTo':'#register_password'}"
-                        data-message="{'equalTo':'两次输入的密码不一致'}" placeholder="请再次输入新密码" required>
+                      <input name="rpasswd" type="password" class="form-control input-medium" data-rule="{'equalTo':'#register_password','messages':{'equalTo':'两次输入的密码不一致'}}"
+                        placeholder="请再次输入新密码" required>
                     </div>
                   </div>
                   <div class="form-group">

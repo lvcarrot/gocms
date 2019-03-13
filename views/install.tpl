@@ -60,8 +60,8 @@
               <span class="fa fa-lock form-control-feedback"></span>
             </div>
             <div class="form-group has-feedback">
-              <input type="password" class="form-control" placeholder="请重新输入密码" data-rule="{'equalTo':'#register_password'}"
-                data-message="{'equalTo':'两次输入的密码不一致'}" required>
+              <input type="password" class="form-control" placeholder="请重新输入密码" data-rule="{'equalTo':'#register_password','messages':{'equalTo':'两次输入的密码不一致'}}"
+                required>
               <span class="fa fa-check form-control-feedback"></span>
             </div>
             <div class="row">
@@ -77,8 +77,14 @@
   {{template "footer"}}
   <script type="text/javascript">
     var options = {
-      'MySQL': { 'port': 3306, 'user': 'root' },
-      'Postgres': { 'port': 5432, 'user': 'postgres' }
+      'MySQL': {
+        'port': 3306,
+        'user': 'root'
+      },
+      'Postgres': {
+        'port': 5432,
+        'user': 'postgres'
+      }
     };
     $(document).ready(function () {
       var select = $('select[name="type"]');
@@ -94,5 +100,4 @@
     })
   </script>
 </body>
-
 </html>
