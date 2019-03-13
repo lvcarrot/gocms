@@ -4,6 +4,7 @@ import (
 	"gocms/model"
 	"gocms/util"
 	"net/http"
+	"sdbackend/domain"
 	"time"
 )
 
@@ -146,6 +147,31 @@ func CrashsDetail(w http.ResponseWriter, r *http.Request) {
 
 func PDFVersion(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
+	if nums, err := model.TotalPDFVersions(); err == nil && nums > 0 {
+		p := util.NewPaginator(r, int64(nums))
+		if versions, err := model.GetPDFVersions(p.PerPageNums, p.Offset()); err == nil {
+			data["list"] = versions
+			var (
+				webVersion *domain.PDFVersion
+				apiVersion *domain.PDFVersion
+			)
+			for i := range versions {
+				if versions[i].ReleaseOnWeb && apiVersion == nil {
+					apiVersion = &versions[i]
+					data["api"] = apiVersion
+				} else {
+					versions[i].ReleaseOnApi = false
+				}
+				if versions[i].ReleaseOnApi && webVersion == nil {
+					webVersion = &versions[i]
+					data["web"] = webVersion
+				} else {
+					versions[i].ReleaseOnWeb = false
+				}
+			}
+		}
+		data["page"] = p
+	}
 	rLayout(w, r, "pdf_version.tpl", data)
 }
 

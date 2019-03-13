@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sdbackend/domain"
 	"sync"
 	"time"
 
@@ -19,8 +20,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	"golang.org/x/time/rate"
 	"gocms/model"
+	"golang.org/x/time/rate"
 )
 
 const (
@@ -219,6 +220,26 @@ func Start(path string) {
 			}
 
 			return fmt.Sprintf("%s/%s", m, s)
+		},
+		"updateType": func(updateType domain.UpdateTypeEnum) string {
+			switch updateType {
+			case domain.UpdateTypeNormal:
+				return "普通更新"
+			case domain.UpdateTypeSilent:
+				return "静默升级"
+			case domain.UpdateTypePop:
+				return "自动弹窗"
+			}
+			return "未知"
+		},
+		"versionType": func(versionType domain.VersionTypeEnum) string {
+			switch versionType {
+			case domain.VersionBeat:
+				return "Beat"
+			case domain.VersionRelease:
+				return "Release"
+			}
+			return "未知"
 		},
 	})
 	t = template.Must(t.ParseGlob(pattern))

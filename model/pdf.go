@@ -506,3 +506,19 @@ func GetKitTipStats(limit, offset int) ([]domain.KitTip, error) {
 	}
 	return ins, nil
 }
+
+func TotalPDFVersions() (int64, error) {
+	var total int64
+	if err := db.New().Model(new(domain.PDFVersion)).Count(&total).Error; err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func GetPDFVersions(limit, offset int) ([]domain.PDFVersion, error) {
+	var ins []domain.PDFVersion
+	if err := db.New().Order("version desc").Limit(limit).Offset(offset).Find(&ins).Error; err != nil {
+		return nil, err
+	}
+	return ins, nil
+}

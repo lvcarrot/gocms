@@ -10,6 +10,7 @@ import (
 	"gocms/libraries/mongo"
 	"gocms/libraries/redis"
 	mongodb "gopkg.in/mgo.v2"
+	"sdbackend/domain"
 	// 数据库驱动
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -54,6 +55,8 @@ func Open(conf *Config) error {
 		new(Node),
 		new(GroupCoefficient),
 		new(QDInstallRuns),
+		new(domain.PDFVersion),
+		new(domain.RecoverVersion),
 		new(BundleInstall)).Error; err != nil {
 		return fmt.Errorf("migrate failed: %v", err)
 	}
