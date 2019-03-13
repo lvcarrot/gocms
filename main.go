@@ -5,14 +5,15 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"reflect"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	"gocms/handler"
 	"gocms/model"
+
+	"github.com/dchest/captcha"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -23,11 +24,7 @@ var (
 func main() {
 	flag.Parse()
 
-	path, err := exec.LookPath(os.Args[0])
-	if err != nil {
-		log.Panicf("gocms service path: %v", err)
-	}
-	path = filepath.Dir(path)
+	path := filepath.Dir(os.Args[0])
 	// 初始化模板
 	handler.Start(path)
 	static := http.StripPrefix("/static/",
@@ -44,7 +41,7 @@ func main() {
 		handler.Error(w, http.StatusMethodNotAllowed, "非法请求")
 	})
 	// 加载配置文件
-	if err = conf.Load(path); err == nil {
+	if err := conf.Load(path); err == nil {
 		if err = model.Open(&conf); err != nil {
 			log.Panic(err)
 		}
@@ -63,6 +60,8 @@ func main() {
 	// 登录相关
 	r.Handle("/", handler.Check(http.HandlerFunc(handler.Home)))
 	r.Handle("/login", handler.Limit(2, handler.Login)).Methods(http.MethodPost)
+	r.Handle("/captcha/{png}", captcha.Server(120, 35)).Methods(http.MethodGet)
+
 	r.HandleFunc("/login", handler.Login).Methods(http.MethodGet)
 	r.HandleFunc("/logout", handler.Logout)
 	r.HandleFunc("/password", handler.Password).Methods(http.MethodPost)
@@ -97,8 +96,10 @@ func main() {
 	s.HandleFunc("/pdf/crashs/detail", handler.CrashsDetail).Methods(http.MethodGet)
 	s.HandleFunc("/bundle_install", handler.BundleInstall).Methods(http.MethodGet)
 	s.HandleFunc("/mininews", handler.MiniNewsStats).Methods(http.MethodGet)
-	s.HandleFunc("/versions/pdf", handler.PDFVersion).Methods(http.MethodGet)
 	s.HandleFunc("/kittips", handler.KitTipStats).Methods(http.MethodGet)
+
+	s.HandleFunc("/versions/pdf", handler.GetPDFVersions).Queries("type", "select").Methods(http.MethodGet)
+	s.HandleFunc("/versions/pdf", handler.PDFVersion).Methods(http.MethodGet)
 
 	log.Panic(http.ListenAndServe(*addr, handlers.CustomLoggingHandler(os.Stdout,
 		handlers.RecoveryHandler(handlers.PrintRecoveryStack(true))(r), handler.WriteLog)))

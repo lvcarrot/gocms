@@ -120,7 +120,7 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 func ParseForm(form url.Values, obj interface{}) error {
 	objT := reflect.TypeOf(obj)
 	objV := reflect.ValueOf(obj)
-	if objT.Kind() != reflect.Ptr || objT.Elem().Kind() == reflect.Struct {
+	if objT.Kind() != reflect.Ptr || objT.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("%v must be struct pointer", obj)
 	}
 	objT = objT.Elem()

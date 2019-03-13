@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -47,7 +48,7 @@ func loadNodes() (map[int64]*Node, error) {
 		list []*Node
 		m    = map[int64]*Node{0: &Node{ID: 0}}
 	)
-	err := db.New().Order("id").Preload("Groups").Find(&list).Error
+	err := db.Order("id").Preload("Groups").Find(&list).Error
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func Install(m *Admin, path string) error {
 	if err = json.Unmarshal(data, &m.Group.Nodes); err != nil {
 		return err
 	}
-	db := db.New().Begin().Set("gorm:association_autoupdate", true)
+	db := db.Begin().Set("gorm:association_autoupdate", true)
 	if err = db.Create(&m.Group).Error; err != nil {
 		db.Rollback()
 		return err
@@ -102,7 +103,7 @@ func GetNodes() Menu {
 // GetNodeAllNodes 根据用户组获取节点
 func GetNodeAllNodes() (Menu, error) {
 	var list Menu
-	err := db.New().Order("id").Preload("Groups").Find(&list).Error
+	err := db.Order("id").Preload("Groups").Find(&list).Error
 	if err != nil {
 		return nil, err
 	}
@@ -180,11 +181,17 @@ type Group struct {
 
 // Create 新建用户组
 func (m *Group) Create() error {
-	err := db.New().Select("id").Find(&m.Nodes, "type = ?", NodeTypeEssensial).Error
+	err := db.Select("id").Find(&m.Nodes, "type = ?", NodeTypeEssensial).Error
 	if err != nil {
 		return err
 	}
-	return db.New().Create(m).Error
+	if err = db.Create(m).Error; err != nil {
+		return err
+	}
+	if mapNodes, err = loadNodes(); err != nil {
+		return fmt.Errorf("init nodes failed: %v", err)
+	}
+	return nil
 }
 
 func (m *Group) String() string {
@@ -193,16 +200,16 @@ func (m *Group) String() string {
 
 // Select 获取角色
 func (m *Group) Select() error {
-	return db.New().Take(m).Error
+	return db.Take(m).Error
 }
 
 // Update 更新角色
 func (m *Group) Update() error {
-	err := db.New().Model(m).Association("Nodes").Replace(m.Nodes).Error
+	err := db.Model(m).Association("Nodes").Replace(m.Nodes).Error
 	if err != nil {
 		return err
 	}
-	err = db.New().Model(m).Set("gorm:association_save_reference", false).Updates(m).Error
+	err = db.Model(m).Set("gorm:association_save_reference", false).Updates(m).Error
 	if err != nil {
 		return err
 	}
@@ -218,7 +225,7 @@ func GetGroups() (map[int64]string, error) {
 		list []*Group
 		hash = make(map[int64]string)
 	)
-	if err := db.New().Order("id").Find(&list).Error; err != nil {
+	if err := db.Order("id").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	for _, v := range list {

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"gocms/model"
 	"gocms/util"
 	"net/http"
@@ -9,6 +10,11 @@ import (
 )
 
 var local *time.Location
+
+type Select struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
 
 func init() {
 	var err error
@@ -185,4 +191,20 @@ func KitTipStats(w http.ResponseWriter, r *http.Request) {
 		data["page"] = p
 	}
 	rLayout(w, r, "kit_tip_stats.tpl", data)
+}
+
+func GetPDFVersions(w http.ResponseWriter, r *http.Request) {
+	versions, err := model.GetPDFVersions(16, 0)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+	var selects []select2
+	for i := range versions {
+		selects = append(selects, select2{versions[i].Version.Version, versions[i].Version.Version})
+	}
+	data, _ := json.Marshal(struct {
+		Results []select2 `json:"results"`
+	}{selects})
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
