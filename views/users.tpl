@@ -3,6 +3,7 @@
 
 <head>
   {{template "header" .node}}
+  <link href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" rel="stylesheet">
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
