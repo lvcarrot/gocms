@@ -26,11 +26,12 @@
               <select name="type" class="form-control"></select>
             </div>
             <div class="form-group has-feedback">
-              <input type="text" name="host" class="form-control" placeholder="数据库主机" value="localhost" required>
+              <input type="text" name="host" class="form-control" placeholder="数据库主机" value="localhost" data-rule="{'messages':{'required':'数据库地址不能为空'}}"
+                required>
               <span class="fa fa-ioxhost form-control-feedback"></span>
             </div>
             <div class="form-group has-feedback">
-              <input type="text" name="port" class="form-control" placeholder="数据库端口" data-rule="{'digits':true}"
+              <input type="text" name="port" class="form-control" placeholder="数据库端口" data-rule="{'digits':true,'messages':{'digits':'端口号必须是数字'}}"
                 required>
               <span class="fa fa-server form-control-feedback"></span>
             </div>
@@ -74,7 +75,11 @@
       </form>
     </div>
   </div>
-  {{template "footer"}}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.10.0/js/md5.min.js"></script>
+  <script src="/static/js/global.js?v=20190101" type="text/javascript"></script>
   <script type="text/javascript">
     var options = {
       'MySQL': {
@@ -100,4 +105,5 @@
     })
   </script>
 </body>
+
 </html>

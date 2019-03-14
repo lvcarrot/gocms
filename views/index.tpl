@@ -86,7 +86,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
-        var area = new Morris.Area({
+        var area = new Morris.Line({
           element: $('#area-chart .chart'),
           xkey: 'y',
           hideHover: 'auto',
