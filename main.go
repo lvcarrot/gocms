@@ -58,7 +58,7 @@ func main() {
 		})
 	}
 	// 登录相关
-	r.Handle("/", handler.Check(http.HandlerFunc(handler.Home))).Methods(http.MethodGet)
+	r.Handle("/", handler.Check(http.HandlerFunc(handler.Home)))
 	r.Handle("/login", handler.Limit(2, handler.Login)).Methods(http.MethodPost)
 	r.Handle("/captcha/{png}", captcha.Server(120, 35)).Methods(http.MethodGet)
 
