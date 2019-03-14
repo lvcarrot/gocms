@@ -58,7 +58,7 @@ func main() {
 		})
 	}
 	// 登录相关
-	r.Handle("/", handler.Check(http.HandlerFunc(handler.Home)))
+	r.Handle("/", handler.Check(http.HandlerFunc(handler.Home))).Methods(http.MethodGet)
 	r.Handle("/login", handler.Limit(2, handler.Login)).Methods(http.MethodPost)
 	r.Handle("/captcha/{png}", captcha.Server(120, 35)).Methods(http.MethodGet)
 
@@ -78,6 +78,8 @@ func main() {
 	s.HandleFunc("/logs", handler.Logs).Methods(http.MethodGet)
 	// 个人中心
 	s.HandleFunc("/profile", handler.Profile).Methods(http.MethodGet)
+	// 文件上传
+	s.HandleFunc("/upload", handler.Upload).Methods(http.MethodPost)
 
 	log.Panic(http.ListenAndServe(*addr, handlers.CustomLoggingHandler(os.Stdout,
 		handlers.RecoveryHandler(handlers.PrintRecoveryStack(true))(r), handler.WriteLog)))

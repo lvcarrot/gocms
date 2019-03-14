@@ -4,6 +4,7 @@
 <head>
   {{template "header" .node}}
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/css/fileinput.min.css" />
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -22,7 +23,7 @@
               <div class="icon">
                 <i class="ion ion-bag"></i>
               </div>
-              <a href="#" class="small-box-footer">更多 <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer" data-target="#upload-modal" data-toggle="modal">更多 <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <div class="col-lg-3 col-xs-6">
@@ -81,6 +82,43 @@
       </section>
     </div>
 
+    <div class="modal" id="upload-modal">
+      <div class="modal-dialog">
+        <div class="modal-content box">
+          <form action="/" method="post" class="form-horizontal">
+            <div class="modal-header">
+              <a class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
+              <h4 class="modal-title">上传文件</h4>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">MD5</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" name="md5" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">路径</label>
+                <div class="col-sm-7">
+                  <input type="text" class="form-control" name="url" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">上传</label>
+                <div class="col-sm-8">
+                  <input type="file" class="file" data-upload-url="/upload" data-show-preview="false" data-show-remove="false"
+                    data-language="zh">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <a class="btn btn-default" data-dismiss="modal">取消</a>
+              <button type="submit" class="btn bg-purple">保存</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     {{template "footer"}}
     <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
@@ -101,6 +139,18 @@
             area.setData(e.data);
           }
         })
+      })
+    </script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/js/fileinput.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/js/locales/zh.min.js"></script>
+    <script type="text/javascript">
+      $(document).on('fileuploaded', function (ev, d) {
+        var resp = d.response;
+        if (resp.code == 200)
+          $('.modal :text[readonly]').each(function (i, el) {
+            el.value = resp.data[el.name];
+          })
       })
     </script>
   </div>
