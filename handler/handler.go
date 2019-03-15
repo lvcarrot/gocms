@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sync"
 	"time"
 
@@ -34,6 +33,7 @@ const (
 
 var (
 	t           *template.Template
+	build       = "0"
 	md5Regexp   = regexp.MustCompile("[a-fA-F0-9]{32}$")
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z0-9]{2,6}$")
 	store       = sessions.NewFilesystemStore(os.TempDir(), securecookie.GenerateRandomKey(32))
@@ -191,8 +191,8 @@ func Start(path string) error {
 			}
 			return template.URL(u.Encode())
 		},
-		"version": func() template.HTML {
-			return template.HTML(runtime.Version())
+		"version": func() string {
+			return fmt.Sprintf("1.0.%s", build)
 		},
 	}
 	// 文件监控

@@ -46,9 +46,9 @@
   <script type="text/javascript">
     $(document).ready(function () {
       $('img').click(function (e) {
-        var src = $(e.target).attr('src');
-        $(e.target).attr('src', src.substr(0, src.indexOf('?') + 1) +
-          'reload=' + (new Date()).getTime());
+        var src = e.target.src;
+        e.target.src = src.substr(0, src.indexOf('?') + 1) +
+          'reload=' + new Date().getTime();
       });
       $.backstretch([
         '//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/img/photo1.png',

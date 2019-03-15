@@ -7,7 +7,10 @@
             "label": "build",
             "type": "shell",
             "command": "go",
-            "args": ["build", "-o", "${workspaceFolderBasename}"],
+            "args": [
+                "build", "-o", "${workspaceFolderBasename}", 
+                "-ldflags", "\"-X gocms/handler.build=$(git rev-list --count --all)\""
+            ],
         }
     ]
 }
