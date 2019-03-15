@@ -522,3 +522,11 @@ func GetPDFVersions(limit, offset int) ([]domain.PDFVersion, error) {
 	}
 	return ins, nil
 }
+
+func GetPDFVersion(version string) (*domain.Version, error) {
+	var ver domain.PDFVersion
+	if err := db.New().Where("version = ?", version).First(&ver).Error; err != nil {
+		return nil, err
+	}
+	return &ver.Version, nil
+}

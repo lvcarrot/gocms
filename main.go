@@ -97,9 +97,11 @@ func main() {
 	s.HandleFunc("/bundle_install", handler.BundleInstall).Methods(http.MethodGet)
 	s.HandleFunc("/mininews", handler.MiniNewsStats).Methods(http.MethodGet)
 	s.HandleFunc("/kittips", handler.KitTipStats).Methods(http.MethodGet)
-
-	s.HandleFunc("/versions/pdf", handler.GetPDFVersions).Queries("type", "select").Methods(http.MethodGet)
 	s.HandleFunc("/versions/pdf", handler.PDFVersion).Methods(http.MethodGet)
+
+	s.HandleFunc("/pdf/versions/list", handler.GetPDFVersionList).Methods(http.MethodGet)
+	s.HandleFunc("/pdf/versions/{version}", handler.GetPDFVersion).Methods(http.MethodGet)
+	s.HandleFunc("/pdf/publicVersion", handler.PDVersionPublish).Methods(http.MethodGet)
 
 	log.Panic(http.ListenAndServe(*addr, handlers.CustomLoggingHandler(os.Stdout,
 		handlers.RecoveryHandler(handlers.PrintRecoveryStack(true))(r), handler.WriteLog)))

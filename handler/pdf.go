@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"sdbackend/domain"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 var local *time.Location
@@ -193,7 +195,7 @@ func KitTipStats(w http.ResponseWriter, r *http.Request) {
 	rLayout(w, r, "kit_tip_stats.tpl", data)
 }
 
-func GetPDFVersions(w http.ResponseWriter, r *http.Request) {
+func GetPDFVersionList(w http.ResponseWriter, r *http.Request) {
 	versions, err := model.GetPDFVersions(16, 0)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -207,4 +209,34 @@ func GetPDFVersions(w http.ResponseWriter, r *http.Request) {
 	}{selects})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+func GetPDFVersion(w http.ResponseWriter, r *http.Request) {
+	var (
+		version *domain.Version
+		err     error
+		v       = mux.Vars(r)["version"]
+		data    = make(map[string]interface{})
+	)
+	if v == "new" {
+		version = &domain.Version{}
+	} else {
+		version, err = model.GetPDFVersion(v)
+		if err != nil {
+			rLayout(w, r, "error.tpl", nil)
+			return
+		}
+	}
+	data["version"] = version
+	rLayout(w, r, "version_edit.tpl", data)
+}
+
+func PDVersionPublish(w http.ResponseWriter, r *http.Request) {
+	var (
+		typ  = r.URL.Query().Get("type")
+		data = map[string]interface{}{
+			"Type": typ,
+		}
+	)
+	rLayout(w, r, "version_publish.tpl", data)
 }

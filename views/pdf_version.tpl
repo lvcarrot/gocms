@@ -5,9 +5,9 @@
   {{template "header" .node.Name}}
   <style>
     .select2 {
-            min-width: 120px;
-        }
-    </style>
+      min-width: 120px;
+    }
+  </style>
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -22,7 +22,7 @@
               <div class="box-header with-border">
                 <h3 class="box-title">官网版本</h3>
                 <div class="box-tools">
-                  <a class="btn bg-primary btn-sm" data-href="/versions/pdf/website" data-target="#modal-modify"
+                  <a class="btn bg-primary btn-sm" data-href="/pdf/publicVersion?type=WebSite" data-target="#modal-edit"
                     data-toggle="modal" title="修改">修改 <i class="fa fa-pencil-square-o"></i></a>
                 </div>
               </div>
@@ -72,7 +72,7 @@
                 <h3 class="box-title">更新接口版本</h3>
                 <div class="box-tools">
                   <form class="form-inline">
-                    <a class="btn bg-primary btn-sm" data-href="/versions/pdf/api" data-target="#modal-modify"
+                    <a class="btn bg-primary btn-sm" data-href="/pdf/publicVersion?type=Api" data-target="#modal-edit"
                       data-toggle="modal" title="修改">修改 <i class="fa fa-pencil-square-o"></i></a>
                   </form>
                 </div>
@@ -123,8 +123,9 @@
           <div class="box-header with-border">
             <h3 class="box-title">版本列表</h3>
             <div class="box-tools">
-              <a class="btn bg-purple btn-sm" data-target="#modal-add" data-toggle="modal" title="新增货币">添加
-                <i class="fa fa-plus"></i></a>
+              <a class="btn btn-sm bg-purple pull-right" data-href="/pdf/versions/new" data-target="#modal-detail"
+                data-toggle="modal">添加 <i class="fa fa-plus"></i>
+              </a>
             </div>
           </div>
           {{if .data.list}}
@@ -165,32 +166,6 @@
       </section>
     </div>
     {{template "modal"}}
-    <div class="modal" id="modal-modify">
-      <div class="modal-dialog">
-        <div class="modal-content box">
-          <form method="post" class="form-horizontal" enctype="multipart/form-data">
-            <div class="modal-header">
-              <a class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
-              <h4 class="modal-title">版本列表</h4>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">版本号</label>
-                <div class="col-sm-3">
-                  <select class="form-control select2" name="version" data-ajax--url="/versions/pdf?type=select"
-                    data-ajax--cache="true">
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <a class="btn btn-default" data-dismiss="modal">取消</a>
-              <button type="submit" class="btn bg-purple">确认</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
     {{template "footer"}}
   </div>
 </body>

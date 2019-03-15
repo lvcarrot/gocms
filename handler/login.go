@@ -34,10 +34,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		jFailed(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if !captcha.VerifyString(r.PostForm.Get("id"), r.PostForm.Get("code")) {
-		jFailed(w, http.StatusBadRequest, "验证码非法")
-		return
-	}
+	//if !captcha.VerifyString(r.PostForm.Get("id"), r.PostForm.Get("code")) {
+	//	jFailed(w, http.StatusBadRequest, "验证码非法")
+	//	return
+	//}
 	email := strings.TrimSpace(r.PostForm.Get("username"))
 	password := strings.TrimSpace(r.PostForm.Get("password"))
 	if !emailRegexp.MatchString(email) {
