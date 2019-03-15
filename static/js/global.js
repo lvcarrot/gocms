@@ -189,10 +189,10 @@ var Admin = {
 }
 
 // 模态框内分页
-$(document).on("click", ".modal-content .pagination a,.modal-content .nav-tabs-custom a", function (e) {
-  if (e.target == '_blank') return;
+$(document).on("click", ".modal-content a", function (e) {
+  if (e.target.target == '_blank') return;
   e.preventDefault();
-  $(this).parents('.modal-content').load($(this).attr('href'), function () {
+  $(this).closest('.modal-content').load(e.target.href, function () {
     Admin.init($(this));
     $(this).find('form').each(function (i, el) {
       Admin.validate($(el));
