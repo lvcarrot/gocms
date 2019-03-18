@@ -8,6 +8,7 @@
       min-width: 120px;
     }
   </style>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/css/fileinput.min.css" />
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -22,7 +23,7 @@
               <div class="box-header with-border">
                 <h3 class="box-title">官网版本</h3>
                 <div class="box-tools">
-                  <a class="btn bg-primary btn-sm" data-href="/pdf/publicVersion?type=WebSite" data-target="#modal-edit"
+                  <a class="btn bg-primary btn-sm" data-href="/modal/pdf/publish?type=WebSite" data-target="#modal-edit"
                     data-toggle="modal" title="修改">修改 <i class="fa fa-pencil-square-o"></i></a>
                 </div>
               </div>
@@ -72,7 +73,7 @@
                 <h3 class="box-title">更新接口版本</h3>
                 <div class="box-tools">
                   <form class="form-inline">
-                    <a class="btn bg-primary btn-sm" data-href="/pdf/publicVersion?type=Api" data-target="#modal-edit"
+                    <a class="btn bg-primary btn-sm" data-href="/modal/pdf/publish?type=Api" data-target="#modal-edit"
                       data-toggle="modal" title="修改">修改 <i class="fa fa-pencil-square-o"></i></a>
                   </form>
                 </div>
@@ -138,16 +139,25 @@
                   <th>更新类型</th>
                   <th>官网</th>
                   <th>API</th>
+                  <th>大小</th>
+                  <th>URL</th>
                   <th>发布时间</th>
+                  <th>操作</th>
                 </tr>
                 {{ range .data.list }}
                 <tr>
                   <td>{{ .Version.Version }}</td>
                   <td>{{versionType .VersionType }}</td>
                   <td>{{updateType .UpdateType }}</td>
-                  <td>{{ .ReleaseOnWeb }}</td>
-                  <td>{{ .ReleaseOnApi }}</td>
-                  <td>{{ .ReleaseDate }}</td>
+                  <td>{{boolNote .ReleaseOnWeb }}</td>
+                  <td>{{boolNote .ReleaseOnApi }}</td>
+                  <td>{{ .PkgSize }}</td>
+                  <td>{{ .PkgURL }}</td>
+                  <td>{{date .ReleaseDate }}</td>
+                  <td>
+                    <a class="btn btn-default btn-xs" title="版本修改" data-href="/pdf/versions/{{.Version.Version}}" data-target="#modal-detail"
+                      data-toggle="modal"><i class="fa fa-pencil text-green"></i></a>
+                  </td>
                 </tr>
                 {{end}}
               </tbody>
@@ -167,6 +177,17 @@
     </div>
     {{template "modal"}}
     {{template "footer"}}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/js/fileinput.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/js/locales/zh.min.js"></script>
+    <script type="text/javascript">
+      $(document).on('fileuploaded', function (ev, d) {
+        var resp = d.response;
+        if (resp.code == 200)
+          $('.modal :text[readonly]').each(function (i, el) {
+            el.value = resp.data[el.name];
+          })
+      })
+    </script>k
   </div>
 </body>
 

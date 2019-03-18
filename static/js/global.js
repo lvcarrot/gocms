@@ -127,6 +127,9 @@ var Admin = {
     if (jQuery().popover) {
       $('[data-toggle="popover"]', $container).popover();
     }
+    if (jQuery().fileinput) {
+      $(':file',$container).fileinput();
+    }
     if (jQuery().select2) {
       $('.select2', $container).select2({
         language: 'zh-CN'

@@ -1,4 +1,4 @@
-<form method="POST" action="/pdf/{{ .data.Type }}" class="form-horizontal">
+<form method="POST" action="/pdf/publish?type={{ .data.Type }}" class="form-horizontal">
   <div class="modal-header">
     <a class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
     <h4 class="modal-title">版本列表</h4>

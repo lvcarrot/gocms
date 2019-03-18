@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
@@ -28,10 +29,10 @@ type Stat interface {
 }
 
 var (
-	endPoint   = ""
-	accessID   = ""
-	accessKey  = ""
-	bucketName = ""
+	accessID   = "LTAI21HFaGtHbyfy"
+	accessKey  = "nZEXL4jwXjMt2wvMu5sJVhM3MdPUzY"
+	endPoint   = "oss-cn-beijing.aliyuncs.com"
+	bucketName = "sd-storage"
 	bucket     *oss.Bucket
 )
 
@@ -64,6 +65,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		fileSize int64
+		objPath  = fmt.Sprintf("xundu/pdf/%s/%s", time.Now().Format("20060102150405.0000"), path.Base(h.Filename))
 	)
 	if sizeInterface, ok := f.(Size); ok {
 		fileSize = sizeInterface.Size()
@@ -86,12 +88,15 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	options := []oss.Option{
 		oss.ContentType(h.Header.Get("Content-Type")),
 	}
-	bucket.PutObjectFromFile(path.Base(h.Filename), u.File.Name(), options...)
+	bucket.PutObjectFromFile(
+		objPath,
+		u.File.Name(),
+		options...)
 
 	jSuccess(w, map[string]string{
-		"url":      "",
+		"pkg_url":  fmt.Sprintf("http://archive.xundupdf.com/%s", objPath),
 		"md5":      hex.EncodeToString(u.Hash.Sum(nil)),
-		"pkg_size": fmt.Sprint("%d", fileSize),
+		"pkg_size": fmt.Sprintf("%d", fileSize),
 	},
 	)
 }

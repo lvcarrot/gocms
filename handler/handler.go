@@ -249,6 +249,13 @@ func Start(path string) error {
 			}
 			return "未知"
 		},
+		"boolNote": func(f bool) string {
+			if f {
+				return "是"
+			} else {
+				return "否"
+			}
+		},
 	}
 	// 文件监控
 	watcher, err := fsnotify.NewWatcher()

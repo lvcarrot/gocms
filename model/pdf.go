@@ -530,3 +530,60 @@ func GetPDFVersion(version string) (*domain.Version, error) {
 	}
 	return &ver.Version, nil
 }
+
+func GetPDFReleaseVersion() (string, string) {
+	var (
+		conn   = redisPool.NewConn()
+		apiKey = "RELEASE_API_VERSION_NUM"
+		webKey = "RELEASE_WEB_VERSION_NUM"
+	)
+	return conn.Get(apiKey).Val(), conn.Get(webKey).Val()
+}
+
+func PublishPDFWebsite(version string) error {
+	_, err := GetPDFVersion(version)
+	if err != nil {
+		return errors.New("版本不存在")
+	}
+	conn := redisPool.NewConn()
+	conn.Del("RELEASE_WEB_VERSION")
+	fmt.Println(version)
+	return conn.Set("RELEASE_WEB_VERSION_NUM", version, 0).Err()
+}
+
+func PublishPDFApi(version string) error {
+	_, err := GetPDFVersion(version)
+	if err != nil {
+		return errors.New("版本不存在")
+	}
+	conn := redisPool.NewConn()
+	conn.Del("RELEASE_API_VERSION")
+	fmt.Println(version)
+	return conn.Set("RELEASE_API_VERSION_NUM", version, 0).Err()
+}
+
+func AddPDFVersion(vesion *domain.Version) error {
+	v := domain.PDFVersion{
+		Version: *vesion,
+	}
+	if err := db.New().Create(&v).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdatePDFVesion(vesion *domain.Version) error {
+	v := domain.PDFVersion{
+		Version: *vesion,
+	}
+	if err := db.New().Save(&v).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func FlushVesionCache() {
+	conn := redisPool.NewConn()
+	conn.Del("RELEASE_API_VERSION")
+	conn.Del("RELEASE_WEB_VERSION")
+}
