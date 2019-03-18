@@ -8,7 +8,7 @@
 <body class="hold-transition login-page">
   <div class="login-box">
     <div class="login-logo">
-      <a href="#"><b>Go</b>CMS</a>
+      <a href="#" class="text-orange"><b>Go</b>CMS</a>
     </div>
     <div class="login-box-body box">
       <p class="login-box-msg">登录系统后台</p>
@@ -38,18 +38,29 @@
     </div>
   </div>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.9/js/adminlte.min.js"></script>
-
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.10.0/js/md5.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.4/jquery.backstretch.min.js"></script>
   <script src="/static/js/global.js?v=20190101" type="text/javascript"></script>
   <script type="text/javascript">
-    $(document).on('click', 'img', function (e) {
-      var src = $(e.target).attr('src');
-      $(e.target).attr('src', src.substr(0, src.indexOf('?') + 1) +
-        'reload=' + (new Date()).getTime());
+    $(document).ready(function () {
+      $('img').click(function (e) {
+        var src = e.target.src;
+        e.target.src = src.substr(0, src.indexOf('?') + 1) +
+          'reload=' + new Date().getTime();
+      });
+      $.backstretch([
+        '//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/img/photo1.png',
+        '//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/img/photo2.png',
+        '//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/img/photo3.jpg',
+        '//cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/img/photo4.jpg',
+      ], {
+        duration: 4000
+      });
+      $(".backstretch").css({
+        opacity: .5
+      });
     })
   </script>
 </body>

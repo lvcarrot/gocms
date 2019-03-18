@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sdbackend/domain"
 	"sync"
 	"time"
@@ -40,6 +39,7 @@ type select2 struct {
 
 var (
 	t           *template.Template
+	build       = "0"
 	md5Regexp   = regexp.MustCompile("[a-fA-F0-9]{32}$")
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z0-9]{2,6}$")
 	store       = sessions.NewFilesystemStore(os.TempDir(), securecookie.GenerateRandomKey(32))
@@ -180,7 +180,7 @@ func Start(path string) error {
 			if t == nil {
 				return "无"
 			}
-			return t.In(time.Local).Format("2006-01-02 15:04:05")
+			return t.In(time.Local).Format(time.RFC3339)
 		},
 		"html": func(s string) template.HTML {
 			return template.HTML(s)
@@ -197,8 +197,8 @@ func Start(path string) error {
 			}
 			return template.URL(u.Encode())
 		},
-		"version": func() template.HTML {
-			return template.HTML(runtime.Version())
+		"version": func() string {
+			return fmt.Sprintf("1.0.%s", build)
 		},
 		"rate": func(r int64) string {
 			if r == 0 {

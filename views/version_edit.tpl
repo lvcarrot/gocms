@@ -8,14 +8,14 @@
     <div class="form-group">
       <label class="col-sm-2 control-label">版本号</label>
       <div class="col-sm-3">
-        <input type="text" class="form-control" name="version" data-rule="{'maxlength':64}" value = "{{$v.Version}}" required {{if $v.Version}} readonly {{end}}>
+        <input type="text" class="form-control" name="version" data-rule="{'maxlength':64}" required {{if ne $v.Version "new"}} value = "{{$v.Version}}" readonly {{end}}>
       </div>
     </div>
     <div class="form-group">
       <label class="col-sm-2 control-label">更新类型</label>
       <div class="col-sm-6 icheck">
         <label class="radio-inline">
-          <input type="radio" name="update_type" value="1" {{if eq $v.UpdateType 1}} checked {{end}}>
+          <input type="radio" name="update_type" value="1" {{if le $v.UpdateType 1}} checked {{end}}>
           普通更新
         </label>
         <label class="radio-inline">
@@ -32,7 +32,7 @@
       <label class="col-sm-2 control-label">更新类型</label>
       <div class="col-sm-6 icheck">
         <label class="radio-inline">
-          <input type="radio" name="version_type" value="1" {{if eq $v.VersionType 1}} checked {{end}}>
+          <input type="radio" name="version_type" value="1" {{if le $v.VersionType 1}} checked {{end}}>
           Release
         </label>
         <label class="radio-inline">
@@ -47,12 +47,14 @@
         <textarea class="form-control" rows="3" name="release_note" >{{ $v.ReleaseNote }}</textarea>
       </div>
     </div>
+    {{ if $v.ReleaseDate }}
     <div class="form-group">
       <label class="col-sm-2 control-label">发布时间</label>
-      <div class="col-sm-3">
-        <input type="text" class="form-control" name="release_date" value="{{date $v.ReleaseDate }}" required readonly>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" name="release_date" value="{{date $v.ReleaseDate}}" required disabled>
       </div>
     </div>
+    {{end}}
     <div class="form-group">
       <label class="col-sm-2 control-label">包大小</label>
       <div class="col-sm-2">
@@ -74,7 +76,7 @@
     <div class="form-group">
       <label class="col-sm-2 control-label">上传</label>
       <div class="col-sm-8">
-        <input type="file" class="file" data-upload-url="/upload" data-show-preview="false" data-show-remove="false"
+        <input type="file" data-upload-url="/upload" data-show-preview="false" data-show-remove="false"
           data-language="zh">
       </div>
     </div>

@@ -148,7 +148,7 @@ var Admin = {
       });
       // 表格复选框
       $('th :checkbox', $container).on('ifChanged', function () {
-        var set = $(this).attr("data-set");
+        var set = $(this).data('set');
         var checked = $(this).is(":checked");
         $(set).each(function () {
           if (checked) {
@@ -192,10 +192,10 @@ var Admin = {
 }
 
 // 模态框内分页
-$(document).on("click", ".modal-content .pagination a,.modal-content .nav-tabs-custom a", function (e) {
-  if (e.target == '_blank') return;
+$(document).on("click", ".modal-content a", function (e) {
+  if (e.target.target == '_blank') return;
   e.preventDefault();
-  $(this).parents('.modal-content').load($(this).attr('href'), function () {
+  $(this).closest('.modal-content').load(e.target.href, function () {
     Admin.init($(this));
     $(this).find('form').each(function (i, el) {
       Admin.validate($(el));
@@ -208,9 +208,9 @@ $(document).ready(function () {
   Admin.init();
   // 模态框表单
   $('.modal:has(form)').on('show.bs.modal', function (e) {
-    $(this).find('.modal-title').text($(e.relatedTarget).attr('title'));
+    $(this).find('.modal-title').text(e.relatedTarget.title);
     $(this).find('form').each(function (i, el) {
-      Admin.validate($(el), { 'url': $(e.relatedTarget).attr('data-href') });
+      Admin.validate($(el), { 'url': $(e.relatedTarget).data('href') });
     })
   }).on("hidden.bs.modal", function () {
     $(this).find('.custom-alerts').remove();
@@ -221,7 +221,7 @@ $(document).ready(function () {
   // 远端模态框
   $('#modal-edit, #modal-detail').on('show.bs.modal', function (e) {
     if (e.namespace === 'bs.modal') {
-      $('.modal-content', $(this)).load($(e.relatedTarget).attr('data-href'),
+      $('.modal-content', $(this)).load($(e.relatedTarget).data('href'),
         function (resp, status) {
           if (status == 'success') {
             Admin.init($(this));
@@ -230,7 +230,7 @@ $(document).ready(function () {
                 beforeSubmit: function (arr) {
                   $(el).find('.jstree').each(function (i, tree) {
                     $.each($(tree).jstree('get_selected'), function (j, n) {
-                      arr[arr.length] = { name: $(tree).attr('name'), value: n };
+                      arr[arr.length] = { name: tree.name, value: n };
                     })
                   })
                 }

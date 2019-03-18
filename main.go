@@ -34,12 +34,7 @@ func main() {
 	// 静态文件
 	r.PathPrefix("/static/").Handler(static)
 	// 404页面
-	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handler.Error(w, http.StatusNotFound, "页面不存在")
-	})
-	r.MethodNotAllowedHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handler.Error(w, http.StatusMethodNotAllowed, "非法请求")
-	})
+	r.NotFoundHandler = handler.Limit(2, http.NotFound)
 	// 加载配置文件
 	if err := conf.Load(path); err == nil {
 		if err = model.Open(&conf); err != nil {
@@ -78,6 +73,8 @@ func main() {
 	s.HandleFunc("/logs", handler.Logs).Methods(http.MethodGet)
 	// 个人中心
 	s.HandleFunc("/profile", handler.Profile).Methods(http.MethodGet)
+	// 文件上传
+	s.HandleFunc("/upload", handler.Upload).Methods(http.MethodPost)
 
 	// 数据统计
 	s.HandleFunc("/qd/day", handler.QDSettleDay).Methods(http.MethodGet)

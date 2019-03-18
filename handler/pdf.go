@@ -202,9 +202,8 @@ func GetPDFVersion(w http.ResponseWriter, r *http.Request) {
 		data    = make(map[string]interface{})
 	)
 	if v == "new" {
-		now := time.Now().In(local)
 		version = &domain.Version{
-			ReleaseDate: &now,
+			Version: "new",
 		}
 	} else {
 		version, err = model.GetPDFVersion(v)
@@ -276,6 +275,10 @@ func PDFPublish(w http.ResponseWriter, r *http.Request) {
 
 func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 	var version domain.Version
+	if err := r.ParseForm(); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	if err := util.ParseForm(r.Form, &version); err != nil {
 		jFailed(w, http.StatusBadRequest, err.Error())
 		return
@@ -285,8 +288,6 @@ func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 		version.PkgURL == "" ||
 		version.PkgSize == 0 ||
 		version.MD5 == "" ||
-		version.ReleaseDate == nil ||
-		version.NeedUpdate == 0 ||
 		version.VersionType == 0 {
 		jFailed(w, http.StatusBadRequest, "invalid param")
 		return
@@ -297,13 +298,23 @@ func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 			jFailed(w, http.StatusBadRequest, "当前版本号已存在")
 			return
 		}
+		if err := model.AddPDFVersion(&version); err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
 	} else {
 		v, err := model.GetPDFVersion(version.Version)
 		if err != nil {
 			jFailed(w, http.StatusBadRequest, "版本不存在")
 			return
 		}
+		now := time.Now().In(local)
 		version.ID = v.ID
+		version.ReleaseDate = &now
+		if err := model.UpdatePDFVesion(&version); err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 	model.FlushVesionCache()
 	jSuccess(w, nil)
