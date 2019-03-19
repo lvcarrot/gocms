@@ -1,6 +1,6 @@
 FROM ubuntu
 MAINTAINER Liping Wan <guyun_hy@163.com>
-EXPOSE 8082
+EXPOSE 8083
 COPY ./gocms /data/bin/
 COPY ./views /data/bin/views
 COPY ./static /data/bin/static
