@@ -1,28 +1,12 @@
 package util
 
 import (
+	"encoding"
 	"fmt"
 	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
-)
-
-const (
-	formatTime     = "15:04:05"
-	formatDate     = "2006-01-02"
-	formatDateTime = "2006-01-02 15:04:05"
-)
-
-var (
-	sliceOfInts    = reflect.TypeOf([]int(nil))
-	sliceOfStrings = reflect.TypeOf([]string(nil))
-	formType       = map[reflect.Type]func(s string) (interface{}, error){
-		reflect.TypeOf(time.Time{}): func(s string) (interface{}, error) {
-			return time.ParseInLocation(formatDateTime, s, time.Local)
-		},
-	}
 )
 
 // ParseForm will parse form values to struct via tag.
@@ -31,6 +15,7 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 	for i := 0; i < objT.NumField(); i++ {
 		fieldV := objV.Field(i)
 		if !fieldV.CanSet() {
+
 			continue
 		}
 
@@ -43,7 +28,7 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 			continue
 		}
 
-		tags := strings.Split(fieldT.Tag.Get("form"), ",")
+		tags := strings.Split(fieldT.Tag.Get("json"), ",")
 		var tag string
 		if len(tags) == 0 || len(tags[0]) == 0 {
 			tag = fieldT.Name
@@ -56,29 +41,36 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 		if len(value) == 0 {
 			continue
 		}
-		switch fieldT.Type.Kind() {
+
+		if fieldV.Kind() == reflect.Ptr {
+			if fieldV.IsNil() {
+				fieldV.Set(reflect.New(fieldT.Type.Elem()))
+			}
+			fieldV = fieldV.Elem()
+		}
+		switch fieldV.Kind() {
 		case reflect.Bool:
 			b, err := strconv.ParseBool(value)
 			if err != nil {
-				return err
+				return fmt.Errorf("parse `%s` failed: %v", tag, err)
 			}
 			fieldV.SetBool(b)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			x, err := strconv.ParseInt(value, 10, 64)
 			if err != nil {
-				return err
+				return fmt.Errorf("parse `%s` failed: %v", tag, err)
 			}
 			fieldV.SetInt(x)
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			x, err := strconv.ParseUint(value, 10, 64)
 			if err != nil {
-				return err
+				return fmt.Errorf("parse `%s` failed: %v", tag, err)
 			}
 			fieldV.SetUint(x)
 		case reflect.Float32, reflect.Float64:
 			x, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return err
+				return fmt.Errorf("parse `%s` failed: %v", tag, err)
 			}
 			fieldV.SetFloat(x)
 		case reflect.Interface:
@@ -86,30 +78,31 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 		case reflect.String:
 			fieldV.SetString(value)
 		case reflect.Struct:
-			if m, exist := formType[fieldT.Type]; exist {
-				t, err := m(value)
-				if err != nil {
-					return err
+			if v, ok := fieldV.Addr().Interface().(encoding.TextUnmarshaler); ok {
+				if err := v.UnmarshalText([]byte(value)); err != nil {
+					return fmt.Errorf("parse `%s` failed: %v", tag, err)
 				}
-				fieldV.Set(reflect.ValueOf(t))
+			} else {
+				return fmt.Errorf("parse `%s` failed `%s`", tag, fieldV.Type())
 			}
-		case reflect.Slice:
-			if fieldT.Type == sliceOfInts {
-				formVals := form[tag]
-				fieldV.Set(reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(int(1))), len(formVals), len(formVals)))
-				for i := 0; i < len(formVals); i++ {
-					val, err := strconv.Atoi(formVals[i])
+		case reflect.Slice, reflect.Array:
+			v, exist := form[tag]
+			if !exist || len(v) == 0 {
+				continue
+			}
+			el := fieldT.Type.Elem()
+			switch el.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				fieldV.Set(reflect.MakeSlice(reflect.SliceOf(el), len(v), len(v)))
+				for i := 0; i < len(v); i++ {
+					x, err := strconv.ParseInt(v[i], 10, 64)
 					if err != nil {
-						return err
+						return fmt.Errorf("parse `%s` failed: %v", tag, err)
 					}
-					fieldV.Index(i).SetInt(int64(val))
+					fieldV.Index(i).SetInt(x)
 				}
-			} else if fieldT.Type == sliceOfStrings {
-				formVals := form[tag]
-				fieldV.Set(reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf("")), len(formVals), len(formVals)))
-				for i := 0; i < len(formVals); i++ {
-					fieldV.Index(i).SetString(formVals[i])
-				}
+			case reflect.String:
+				fieldV.Set(reflect.ValueOf(v))
 			}
 		}
 	}
@@ -120,7 +113,7 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 func ParseForm(form url.Values, obj interface{}) error {
 	objT := reflect.TypeOf(obj)
 	objV := reflect.ValueOf(obj)
-	if objT.Kind() != reflect.Ptr || objT.Elem().Kind() == reflect.Struct {
+	if objT.Kind() != reflect.Ptr || objT.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("%v must be struct pointer", obj)
 	}
 	objT = objT.Elem()

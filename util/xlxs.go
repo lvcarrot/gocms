@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,14 +11,6 @@ import (
 	"time"
 
 	"github.com/tealeg/xlsx"
-)
-
-var (
-	xlsxType = map[reflect.Type]func(v interface{}) string{
-		reflect.TypeOf(time.Time{}): func(v interface{}) string {
-			return v.(time.Time).Format(formatDateTime)
-		},
-	}
 )
 
 type xlsxTag map[string]string
@@ -44,9 +37,7 @@ func xlsxField(row *xlsx.Row, t reflect.Type) {
 			if v.Kind() == reflect.Ptr {
 				v = v.Elem()
 			}
-			if _, exist = xlsxType[v]; exist {
-				row.AddCell().SetString(f.Name)
-			} else if v.Kind() == reflect.Struct {
+			if v.Kind() == reflect.Struct {
 				xlsxField(row, v)
 			} else {
 				row.AddCell().SetString(f.Name)
@@ -57,7 +48,7 @@ func xlsxField(row *xlsx.Row, t reflect.Type) {
 	}
 }
 
-func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) {
+func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) error {
 	for i := 0; i < objT.NumField(); i++ {
 		fieldV := objV.Field(i)
 		fieldT := objT.Field(i)
@@ -74,7 +65,13 @@ func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) {
 			cell.SetString("-")
 			continue
 		}
-		fieldV = reflect.Indirect(fieldV)
+		if fieldV.Kind() == reflect.Ptr {
+			if fieldV.IsNil() {
+				cell.SetString("-")
+				continue
+			}
+			fieldV = fieldV.Elem()
+		}
 		if enum, exist := opts["enum"]; exist {
 			list := strings.Split(enum, ",")
 			if index := int(fieldV.Int()); index < len(list) {
@@ -82,14 +79,24 @@ func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) {
 			}
 		} else if !fieldV.CanInterface() {
 			log.Printf("tag `%s` bad field `%s` valid `%v`", name, fieldV.Type(), fieldV.IsValid())
-		} else if m, exist := xlsxType[fieldV.Type()]; exist {
-			cell.SetString(m(fieldV.Interface()))
-		} else if s, ok := fieldV.Interface().(fmt.Stringer); ok {
-			cell.SetString(s.String())
 		} else {
-			cell.SetValue(fieldV.Interface())
+			v := fieldV.Interface()
+			if d, ok := v.(time.Time); ok {
+				cell.SetDateTime(d)
+			} else if m, ok := v.(encoding.TextMarshaler); ok {
+				t, err := m.MarshalText()
+				if err != nil {
+					return fmt.Errorf("tag `%s` failed: %v", name, err)
+				}
+				cell.SetString(string(t))
+			} else if s, ok := v.(fmt.Stringer); ok {
+				cell.SetString(s.String())
+			} else {
+				cell.SetValue(v)
+			}
 		}
 	}
+	return nil
 }
 
 // Excel 导出Excel

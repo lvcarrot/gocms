@@ -5,8 +5,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Tomasen/realip"
 	"gocms/model"
+
+	"github.com/Tomasen/realip"
+	"github.com/dchest/captcha"
 )
 
 var (
@@ -24,13 +26,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if r.Method == http.MethodGet {
-		t.ExecuteTemplate(w, "login.tpl", r.Referer())
+		t.ExecuteTemplate(w, "login.tpl", map[string]string{
+			"ref": r.Referer(), "captcha": captcha.New()})
 		return
 	}
 	if err = r.ParseForm(); err != nil {
 		jFailed(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	//if !captcha.VerifyString(r.PostForm.Get("id"), r.PostForm.Get("code")) {
+	//	jFailed(w, http.StatusBadRequest, "验证码非法")
+	//	return
+	//}
 	email := strings.TrimSpace(r.PostForm.Get("username"))
 	password := strings.TrimSpace(r.PostForm.Get("password"))
 	if !emailRegexp.MatchString(email) {

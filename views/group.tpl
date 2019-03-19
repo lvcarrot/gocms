@@ -24,7 +24,6 @@
     <button type="submit" class="btn btn-danger">确定</button>
   </div>
 </form>
-
 {{define "nodetree"}}
 {{range .m}}
 <li data-jstree='{"icon":"{{.Icon}}","selected":{{.HasGroup $.group|print}},"opened":false{{if .Type}},"disabled":true{{end}}}'

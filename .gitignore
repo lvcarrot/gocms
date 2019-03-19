@@ -4,9 +4,9 @@
 *.so
 *.db
 *.dylib
+/gocms
 /debug
 /config.json
-/session_*
 
 # Test binary, build with `go test -c`
 *.test

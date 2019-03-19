@@ -1,14 +1,23 @@
 package handler
 
 import (
+	"encoding/json"
 	"gocms/model"
 	"gocms/util"
 	"net/http"
 	"sdbackend/domain"
+	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 var local *time.Location
+
+type Select struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
 
 func init() {
 	var err error
@@ -145,36 +154,6 @@ func CrashsDetail(w http.ResponseWriter, r *http.Request) {
 	rLayout(w, r, "pdf_crashs_detail.tpl", data)
 }
 
-func PDFVersion(w http.ResponseWriter, r *http.Request) {
-	data := make(map[string]interface{})
-	if nums, err := model.TotalPDFVersions(); err == nil && nums > 0 {
-		p := util.NewPaginator(r, int64(nums))
-		if versions, err := model.GetPDFVersions(p.PerPageNums, p.Offset()); err == nil {
-			data["list"] = versions
-			var (
-				webVersion *domain.PDFVersion
-				apiVersion *domain.PDFVersion
-			)
-			for i := range versions {
-				if versions[i].ReleaseOnWeb && apiVersion == nil {
-					apiVersion = &versions[i]
-					data["api"] = apiVersion
-				} else {
-					versions[i].ReleaseOnApi = false
-				}
-				if versions[i].ReleaseOnApi && webVersion == nil {
-					webVersion = &versions[i]
-					data["web"] = webVersion
-				} else {
-					versions[i].ReleaseOnWeb = false
-				}
-			}
-		}
-		data["page"] = p
-	}
-	rLayout(w, r, "pdf_version.tpl", data)
-}
-
 func KitTipStats(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
 	if nums, err := model.GetTotalKitTip(); err == nil && nums > 0 {
@@ -185,4 +164,168 @@ func KitTipStats(w http.ResponseWriter, r *http.Request) {
 		data["page"] = p
 	}
 	rLayout(w, r, "kit_tip_stats.tpl", data)
+}
+
+func GetPDFVersions(w http.ResponseWriter, r *http.Request) {
+	data := make(map[string]interface{})
+	if nums, err := model.TotalPDFVersions(); err == nil && nums > 0 {
+		var (
+			p        = util.NewPaginator(r, int64(nums))
+			api, web = model.GetPDFReleaseVersion()
+		)
+		if versions, err := model.GetPDFVersions(p.PerPageNums, p.Offset()); err == nil {
+			data["list"] = versions
+			for i := range versions {
+				if versions[i].Version.Version == api {
+					versions[i].ReleaseOnApi = true
+				} else {
+					versions[i].ReleaseOnApi = false
+				}
+				if versions[i].Version.Version == web {
+					versions[i].ReleaseOnWeb = true
+				} else {
+					versions[i].ReleaseOnWeb = false
+				}
+			}
+		}
+		if v, err := model.GetPDFVersion(api); err == nil {
+			data["api"] = v
+		}
+		if v, err := model.GetPDFVersion(web); err == nil {
+			data["web"] = v
+		}
+		data["page"] = p
+	}
+	rLayout(w, r, "pdf_version.tpl", data)
+}
+
+func GetPDFVersion(w http.ResponseWriter, r *http.Request) {
+	var (
+		version *domain.Version
+		err     error
+		v       = mux.Vars(r)["version"]
+		data    = make(map[string]interface{})
+	)
+	now := time.Now().In(local)
+	if v == "new" {
+		version = &domain.Version{
+			Version:     "new",
+			ReleaseDate: &now,
+		}
+	} else {
+		version, err = model.GetPDFVersion(v)
+		if err != nil {
+			rLayout(w, r, "error.tpl", nil)
+			return
+		}
+	}
+	data["version"] = version
+	rLayout(w, r, "version_edit.tpl", data)
+}
+
+func GetPDFVersionList(w http.ResponseWriter, r *http.Request) {
+	versions, err := model.GetPDFVersions(16, 0)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+	var selects []select2
+	for i := range versions {
+		selects = append(selects, select2{versions[i].Version.Version, versions[i].Version.Version})
+	}
+	data, _ := json.Marshal(struct {
+		Results []select2 `json:"results"`
+	}{selects})
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func ModalPDFPublish(w http.ResponseWriter, r *http.Request) {
+	var (
+		typ  = r.URL.Query().Get("type")
+		data = map[string]interface{}{
+			"Type": typ,
+		}
+	)
+	rLayout(w, r, "version_publish.tpl", data)
+}
+
+func PDFPublish(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	var (
+		version = r.Form.Get("version")
+		typ     = r.Form.Get("type")
+	)
+
+	if version == "" {
+		jFailed(w, http.StatusBadRequest, "empty version num")
+		return
+	}
+	if typ == "WebSite" {
+		if err := model.PublishPDFWebsite(version); err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
+	} else if typ == "Api" {
+		if err := model.PublishPDFApi(version); err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
+	} else {
+		jFailed(w, http.StatusBadRequest, "invalid type")
+		return
+	}
+	jSuccess(w, nil)
+}
+
+func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
+	var version domain.Version
+	if err := r.ParseForm(); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := util.ParseForm(r.Form, &version); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	version.Version = strings.TrimSpace(version.Version)
+	if version.Version == "" ||
+		version.PkgURL == "" ||
+		version.PkgSize == 0 ||
+		version.MD5 == "" ||
+		version.UpdateType == 0 {
+		jFailed(w, http.StatusBadRequest, "invalid param")
+		return
+	}
+	var (
+		typ = mux.Vars(r)["version"]
+		now = time.Now().In(local)
+	)
+	if typ == "new" {
+		version.ReleaseDate = &now
+		if _, err := model.GetPDFVersion(version.Version); err == nil {
+			jFailed(w, http.StatusBadRequest, "当前版本号已存在")
+			return
+		}
+		if err := model.AddPDFVersion(&version); err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
+	} else {
+		v, err := model.GetPDFVersion(version.Version)
+		if err != nil {
+			jFailed(w, http.StatusBadRequest, "版本不存在")
+			return
+		}
+		version.ID = v.ID
+		version.ReleaseDate = &now
+		if err := model.UpdatePDFVesion(&version); err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+	model.FlushVesionCache()
+	jSuccess(w, nil)
 }

@@ -5,9 +5,10 @@
   {{template "header" .node.Name}}
   <style>
     .select2 {
-            min-width: 120px;
-        }
-    </style>
+      min-width: 120px;
+    }
+  </style>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/css/fileinput.min.css" />
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -22,13 +23,12 @@
               <div class="box-header with-border">
                 <h3 class="box-title">官网版本</h3>
                 <div class="box-tools">
-                  <form class="form-inline">
-                    <button type="submit" class="btn bg-primary btn-sm" title="修改">修改 <i class="fa fa-pencil-square-o"></i></button>
-                  </form>
+                  <a class="btn bg-primary btn-sm" data-href="/modal/pdf/publish?type=WebSite" data-target="#modal-edit"
+                    data-toggle="modal" title="修改">修改 <i class="fa fa-pencil-square-o"></i></a>
                 </div>
               </div>
               {{if .data.web }}
-              {{$v := .data.web.Version}}
+              {{$v := .data.web}}
               <div class="box-body box-profile">
                 <ul class="list-group list-group-unbordered">
                   <li class="list-group-item">
@@ -41,9 +41,6 @@
                     <b>版本类型</b> <a class="pull-right">{{versionType $v.VersionType }}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>发布说明</b> <a class="pull-right">{{ $v.ReleaseNote }}</a>
-                  </li>
-                  <li class="list-group-item">
                     <b>发布时间</b> <a class="pull-right">{{date $v.ReleaseDate }}</a>
                   </li>
                   <li class="list-group-item">
@@ -52,9 +49,11 @@
                   <li class="list-group-item">
                     <b>MD5</b> <a class="pull-right">{{ $v.MD5 }}</a>
                   </li>
+                  <!--
                   <li class="list-group-item">
                     <b>发布人</b> <a class="pull-right">无</a>
                   </li>
+                  -->
                   <li class="list-group-item">
                     <b>下载地址</b> <a class="pull-right">{{ $v.PkgURL }}</a>
                   </li>
@@ -73,12 +72,13 @@
                 <h3 class="box-title">更新接口版本</h3>
                 <div class="box-tools">
                   <form class="form-inline">
-                    <button type="submit" class="btn bg-primary btn-sm" title="修改">修改 <i class="fa fa-pencil-square-o"></i></button>
+                    <a class="btn bg-primary btn-sm" data-href="/modal/pdf/publish?type=Api" data-target="#modal-edit"
+                      data-toggle="modal" title="修改">修改 <i class="fa fa-pencil-square-o"></i></a>
                   </form>
                 </div>
               </div>
               {{if .data.api }}
-              {{$v := .data.api.Version}}
+              {{$v := .data.api}}
               <div class="box-body box-profile">
                 <ul class="list-group list-group-unbordered">
                   <li class="list-group-item">
@@ -92,9 +92,6 @@
                     <b>版本类型</b> <a class="pull-right">{{versionType $v.VersionType }}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>发布说明</b> <a class="pull-right">{{ $v.ReleaseNote }}</a>
-                  </li>
-                  <li class="list-group-item">
                     <b>发布时间</b> <a class="pull-right">{{date $v.ReleaseDate }}</a>
                   </li>
                   <li class="list-group-item">
@@ -103,9 +100,11 @@
                   <li class="list-group-item">
                     <b>MD5</b> <a class="pull-right">{{ $v.MD5 }}</a>
                   </li>
+                  <!--
                   <li class="list-group-item">
                     <b>发布人</b> <a class="pull-right">无</a>
                   </li>
+                  -->
                   <li class="list-group-item">
                     <b>下载地址</b> <a class="pull-right">{{ $v.PkgURL }}</a>
                   </li>
@@ -123,8 +122,9 @@
           <div class="box-header with-border">
             <h3 class="box-title">版本列表</h3>
             <div class="box-tools">
-              <a class="btn bg-purple btn-sm" data-target="#modal-add" data-toggle="modal" title="新增货币">添加
-                <i class="fa fa-plus"></i></a>
+              <a class="btn btn-sm bg-purple pull-right" data-href="/pdf/versions/new" data-target="#modal-detail"
+                data-toggle="modal">添加 <i class="fa fa-plus"></i>
+              </a>
             </div>
           </div>
           {{if .data.list}}
@@ -137,16 +137,25 @@
                   <th>更新类型</th>
                   <th>官网</th>
                   <th>API</th>
+                  <th>大小</th>
+                  <th>URL</th>
                   <th>发布时间</th>
+                  <th>操作</th>
                 </tr>
                 {{ range .data.list }}
                 <tr>
                   <td>{{ .Version.Version }}</td>
                   <td>{{versionType .VersionType }}</td>
                   <td>{{updateType .UpdateType }}</td>
-                  <td>{{ .ReleaseOnWeb }}</td>
-                  <td>{{ .ReleaseOnApi }}</td>
-                  <td>{{ .ReleaseDate }}</td>
+                  <td>{{boolNote .ReleaseOnWeb }}</td>
+                  <td>{{boolNote .ReleaseOnApi }}</td>
+                  <td>{{ .PkgSize }}</td>
+                  <td>{{ .PkgURL }}</td>
+                  <td>{{date .ReleaseDate }}</td>
+                  <td>
+                    <a class="btn btn-default btn-xs" title="版本修改" data-href="/pdf/versions/{{.Version.Version}}"
+                      data-target="#modal-detail" data-toggle="modal"><i class="fa fa-pencil text-green"></i></a>
+                  </td>
                 </tr>
                 {{end}}
               </tbody>
@@ -165,34 +174,18 @@
       </section>
     </div>
     {{template "modal"}}
-
-    <div class="modal" id="modal-add">
-    <div class="modal-dialog">
-      <div class="modal-content box">
-        <form action="/coin/add" method="post" class="form-horizontal" enctype="multipart/form-data">
-          <div class="modal-header">
-            <a class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></a>
-            <h4 class="modal-title">新增货币</h4>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label class="col-sm-3 control-label">货币组</label>
-              <div class="col-sm-3">
-                <select class="form-control select2" name="coin_group" data-ajax--url="/coin/name?group=1" data-ajax--cache="true">
-                </select>
-              </div>
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <a class="btn btn-default" data-dismiss="modal">取消</a>
-            <button type="submit" class="btn bg-purple">新增</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
     {{template "footer"}}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/js/fileinput.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.2/js/locales/zh.min.js"></script>
+    <script type="text/javascript">
+      $(document).on('fileuploaded', function (ev, d) {
+        var resp = d.response;
+        if (resp.code == 200)
+          $('.modal :text[readonly]').each(function (i, el) {
+            el.value = resp.data[el.name];
+          })
+      })
+    </script>k
   </div>
 </body>
 

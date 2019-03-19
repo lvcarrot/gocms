@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"strings"
 
+	"gocms/model"
+
 	"github.com/Tomasen/realip"
 	"github.com/gorilla/mux"
-	"gocms/model"
 )
 
 // Install 安装配置

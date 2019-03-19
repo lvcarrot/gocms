@@ -5,22 +5,24 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sdbackend/domain"
 	"sync"
 	"time"
 
+	"gocms/model"
+
 	"github.com/Tomasen/realip"
+	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	"gocms/model"
 	"golang.org/x/time/rate"
 )
 
@@ -36,7 +38,8 @@ type select2 struct {
 }
 
 var (
-	t           = template.New("")
+	t           *template.Template
+	build       = "0"
 	md5Regexp   = regexp.MustCompile("[a-fA-F0-9]{32}$")
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z0-9]{2,6}$")
 	store       = sessions.NewFilesystemStore(os.TempDir(), securecookie.GenerateRandomKey(32))
@@ -61,12 +64,18 @@ func aLog(r *http.Request, format string, a ...interface{}) error {
 
 func jSuccess(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"code": http.StatusOK, "data": data})
+	json.NewEncoder(w).Encode(struct {
+		Code int         `json:"code"`
+		Data interface{} `json:"data,omitempty"`
+	}{Code: http.StatusOK, Data: data})
 }
 
-func jFailed(w http.ResponseWriter, code int64, format string, a ...interface{}) {
+func jFailed(w http.ResponseWriter, code int, format string, a ...interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"code": code, "msg": fmt.Sprintf(format, a...)})
+	json.NewEncoder(w).Encode(struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg,omitempty"`
+	}{Code: code, Msg: fmt.Sprintf(format, a...)})
 }
 
 // rLayout 渲染模板
@@ -158,16 +167,15 @@ func WriteLog(w io.Writer, p handlers.LogFormatterParams) {
 			u = fmt.Sprint(cookie)
 		}
 	}
-	fmt.Fprintf(w, "%s %s %s %d %d %s %s\n", p.TimeStamp.Format("2006/01/02 15:04:05"), p.Request.Method,
-		p.URL.RequestURI(), p.StatusCode, p.Size, realip.FromRequest(p.Request), u)
+	fmt.Fprintf(w, "%s %s %d %s %d %s (%s) %s\n", p.TimeStamp.Format("2006/01/02 15:04:05"),
+		p.Request.Method, p.StatusCode, p.URL.RequestURI(), p.Size,
+		realip.FromRequest(p.Request), time.Now().Sub(p.TimeStamp), u)
 }
 
 // Start 初始化控制层
-func Start(path string) {
-	// 注册类型
-	pattern := filepath.Join(path, "views", "*.tpl")
+func Start(path string) error {
 	// 注册自定义函数
-	t.Funcs(template.FuncMap{
+	funcMap := template.FuncMap{
 		"date": func(t *time.Time) string {
 			if t == nil {
 				return "无"
@@ -189,8 +197,8 @@ func Start(path string) {
 			}
 			return template.URL(u.Encode())
 		},
-		"version": func() template.HTML {
-			return template.HTML(runtime.Version())
+		"version": func() string {
+			return fmt.Sprintf("1.0.%s", build)
 		},
 		"rate": func(r int64) string {
 			if r == 0 {
@@ -241,6 +249,33 @@ func Start(path string) {
 			}
 			return "未知"
 		},
-	})
-	t = template.Must(t.ParseGlob(pattern))
+		"boolNote": func(f bool) string {
+			if f {
+				return "是"
+			} else {
+				return "否"
+			}
+		},
+	}
+	// 文件监控
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return fmt.Errorf("create watcher: %v", err)
+	}
+	go func() {
+		pattern := filepath.Join(path, "views", "*.tpl")
+		for {
+			select {
+			case e := <-watcher.Events:
+				log.Printf("load %s: %d", filepath.Base(e.Name), e.Op)
+				if t, err = template.New("").Funcs(funcMap).ParseGlob(pattern); err != nil {
+					log.Printf("parse %s failed: %v", e.Name, err)
+				}
+			case err := <-watcher.Errors:
+				log.Printf("Watcher error: %v", err) // No need to exit here
+			}
+		}
+	}()
+	watcher.Events <- fsnotify.Event{}
+	return watcher.Add(filepath.Join(path, "views"))
 }
