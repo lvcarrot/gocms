@@ -37,10 +37,9 @@ func xlsxField(row *xlsx.Row, t reflect.Type) {
 			if v.Kind() == reflect.Ptr {
 				v = v.Elem()
 			}
-			if v.Kind() == reflect.Struct {
+			row.AddCell().SetString(f.Name)
+			if v.Kind() == reflect.Struct && v.Name() != "time.Time" {
 				xlsxField(row, v)
-			} else {
-				row.AddCell().SetString(f.Name)
 			}
 		} else if name, _ := parseXlsxTag(tags); "-" != name {
 			row.AddCell().SetString(name)
@@ -48,7 +47,7 @@ func xlsxField(row *xlsx.Row, t reflect.Type) {
 	}
 }
 
-func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) error {
+func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) {
 	for i := 0; i < objT.NumField(); i++ {
 		fieldV := objV.Field(i)
 		fieldT := objT.Field(i)
@@ -79,24 +78,20 @@ func xlsxCell(row *xlsx.Row, objT reflect.Type, objV reflect.Value) error {
 			}
 		} else if !fieldV.CanInterface() {
 			log.Printf("tag `%s` bad field `%s` valid `%v`", name, fieldV.Type(), fieldV.IsValid())
+		} else if len(name) == 0 && fieldV.Kind() == reflect.Struct {
+			xlsxCell(row, fieldV.Type(), fieldV)
 		} else {
 			v := fieldV.Interface()
 			if d, ok := v.(time.Time); ok {
 				cell.SetDateTime(d)
 			} else if m, ok := v.(encoding.TextMarshaler); ok {
-				t, err := m.MarshalText()
-				if err != nil {
-					return fmt.Errorf("tag `%s` failed: %v", name, err)
-				}
+				t, _ := m.MarshalText()
 				cell.SetString(string(t))
-			} else if s, ok := v.(fmt.Stringer); ok {
-				cell.SetString(s.String())
 			} else {
-				cell.SetValue(v)
+				cell.SetString(fmt.Sprint(v))
 			}
 		}
 	}
-	return nil
 }
 
 // Excel 导出Excel

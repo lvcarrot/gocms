@@ -69,13 +69,16 @@ var Admin = {
             success: function (resp) {
               if (resp.code != 200) Admin.alert({
                 container: $form.find('.modal-footer'),
-                type: 'danger', message: resp.msg
-              }); else location.reload();
+                type: 'danger',
+                message: resp.msg
+              });
+              else location.reload();
             },
             error: function () {
               Admin.alert({
                 container: $form.find('.modal-footer'),
-                type: 'danger', message: '请求失败'
+                type: 'danger',
+                message: '请求失败'
               });
             }
           }, options));
@@ -171,20 +174,6 @@ var Admin = {
         }
       });
     }
-    if (jQuery().jstree) {
-      $('.jstree', $container).jstree({
-        "core": {
-          "themes": {
-            "variant": "large"
-          }
-        },
-        "checkbox": {
-          "cascade": "undetermined",
-          "three_state": false
-        },
-        "plugins": ["checkbox"]
-      });
-    }
   }
 }
 
@@ -207,7 +196,9 @@ $(document).ready(function () {
   $('.modal:has(form)').on('show.bs.modal', function (e) {
     $(this).find('.modal-title').text(e.relatedTarget.title);
     $(this).find('form').each(function (i, el) {
-      Admin.validate($(el), { 'url': $(e.relatedTarget).data('href') });
+      Admin.validate($(el), {
+        'url': $(e.relatedTarget).data('href')
+      });
     })
   }).on('hidden.bs.modal', function () {
     $(this).find('.custom-alerts').remove();
@@ -218,20 +209,12 @@ $(document).ready(function () {
   // 远端模态框
   $('#modal-edit, #modal-detail').on('show.bs.modal', function (e) {
     if (e.namespace === 'bs.modal') {
-      $('.modal-content', $(this)).load($(e.relatedTarget).data('href'),
+      $(this).find('.modal-content').load($(e.relatedTarget).data('href'),
         function (resp, status) {
           if (status == 'success') {
             Admin.init($(this));
             $(this).find('form').each(function (i, el) {
-              Admin.validate($(el), {
-                beforeSubmit: function (arr) {
-                  $(el).find('.jstree').each(function (i, tree) {
-                    $.each($(tree).jstree('get_selected'), function (j, n) {
-                      arr[arr.length] = { name: tree.name, value: n };
-                    })
-                  })
-                }
-              });
+              Admin.validate($(el));
             })
           }
         }).empty();
@@ -249,11 +232,16 @@ $(document).ready(function () {
       },
       success: function (resp) {
         if (resp.code != 200) Admin.alert({
-            container: el, type: 'danger', message: resp.msg
-        }); else if (typeof resp.data == 'string') 
+          container: el,
+          type: 'danger',
+          message: resp.msg
+        });
+        else if (typeof resp.data == 'string')
           window.location = resp.data;
-        else Admin.alert({ container: el, 
-          message: resp.msg, closeInSeconds: 3 
+        else Admin.alert({
+          container: el,
+          message: resp.msg,
+          closeInSeconds: 3
         });
       },
     });

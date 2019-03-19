@@ -34,7 +34,7 @@
                   <li class="active">
                     <a>{{$name}}
                       {{if $.user.Access "/group/{id:[0-9]+}"}}
-                      <span class="btn btn-xs bg-navy pull-right" data-href="/group/{{$id}}" data-target="#modal-edit"
+                      <span class="btn btn-xs bg-navy pull-right" data-href="/group/{{$id}}" data-target="#modal-node"
                         data-toggle="modal"><i class="fa fa-edit"></i></span>
                       {{end}}
                     </a>
@@ -189,9 +189,48 @@
       </div>
     </div>
     {{end}}
-    {{template "modal"}}
+    {{if .user.Access "/group/{id:[0-9]+}"}}
+    <div class="modal" id="modal-node">
+      <div class="modal-dialog">
+        <div class="modal-content box">
+        </div>
+      </div>
+    </div>
+    {{end}}
     {{template "footer"}}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/jstree.min.js"></script>
+    <script type="text/javascript">
+      $(document).on('show.bs.modal', '#modal-node', function (e) {
+        if (e.namespace === 'bs.modal') {
+          $(this).find('.modal-content').load($(e.relatedTarget).data('href'),
+            function (resp, status) {
+              if (status == 'success') {
+                $(this).find('.jstree').jstree({
+                  "core": { "themes": { "variant": "large" } },
+                  "checkbox": { "cascade": "undetermined", "three_state": false },
+                  "plugins": ["checkbox"]
+                });
+                $(this).find('form').each(function (i, el) {
+                  Admin.validate($(el), {
+                    beforeSubmit: function (arr) {
+                      $(el).find('.jstree').each(function (i, tree) {
+                        $.each($(tree).jstree('get_selected'), function (j, n) {
+                          arr[arr.length] = {
+                            name: $(tree).attr('name'),
+                            value: n
+                          };
+                        })
+                      })
+                    }
+                  });
+                })
+              }
+            }).empty();
+        }
+      }).on('hide.bs.modal', '#modal-node', function () {
+        $(this).removeData('bs.modal');
+      });
+    </script>
   </div>
 </body>
 
