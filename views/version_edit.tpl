@@ -29,14 +29,14 @@
       </div>
     </div>
     <div class="form-group">
-      <label class="col-sm-2 control-label">更新类型</label>
+      <label class="col-sm-2 control-label">版本类型</label>
       <div class="col-sm-6 icheck">
         <label class="radio-inline">
           <input type="radio" name="version_type" value="1" {{if le $v.VersionType 1}} checked {{end}}>
           Release
         </label>
         <label class="radio-inline">
-          <input type="radio" name="version_type" value="2" {{if eq $v.VersionType 2}} checked {{end}}>
+          <input type="radio" name="version_type" value="0" {{if eq $v.VersionType 2}} checked {{end}}>
           Beat
         </label>
       </div>
@@ -47,14 +47,12 @@
         <textarea class="form-control" rows="3" name="release_note" >{{ $v.ReleaseNote }}</textarea>
       </div>
     </div>
-    {{ if $v.ReleaseDate }}
     <div class="form-group">
       <label class="col-sm-2 control-label">发布时间</label>
       <div class="col-sm-4">
         <input type="text" class="form-control" name="release_date" value="{{date $v.ReleaseDate}}" required disabled>
       </div>
     </div>
-    {{end}}
     <div class="form-group">
       <label class="col-sm-2 control-label">包大小</label>
       <div class="col-sm-2">

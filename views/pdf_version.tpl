@@ -41,9 +41,6 @@
                     <b>版本类型</b> <a class="pull-right">{{versionType $v.VersionType }}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>发布说明</b> <a class="pull-right">{{ $v.ReleaseNote }}</a>
-                  </li>
-                  <li class="list-group-item">
                     <b>发布时间</b> <a class="pull-right">{{date $v.ReleaseDate }}</a>
                   </li>
                   <li class="list-group-item">
@@ -52,9 +49,11 @@
                   <li class="list-group-item">
                     <b>MD5</b> <a class="pull-right">{{ $v.MD5 }}</a>
                   </li>
+                  <!--
                   <li class="list-group-item">
                     <b>发布人</b> <a class="pull-right">无</a>
                   </li>
+                  -->
                   <li class="list-group-item">
                     <b>下载地址</b> <a class="pull-right">{{ $v.PkgURL }}</a>
                   </li>
@@ -93,9 +92,6 @@
                     <b>版本类型</b> <a class="pull-right">{{versionType $v.VersionType }}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>发布说明</b> <a class="pull-right">{{ $v.ReleaseNote }}</a>
-                  </li>
-                  <li class="list-group-item">
                     <b>发布时间</b> <a class="pull-right">{{date $v.ReleaseDate }}</a>
                   </li>
                   <li class="list-group-item">
@@ -104,9 +100,11 @@
                   <li class="list-group-item">
                     <b>MD5</b> <a class="pull-right">{{ $v.MD5 }}</a>
                   </li>
+                  <!--
                   <li class="list-group-item">
                     <b>发布人</b> <a class="pull-right">无</a>
                   </li>
+                  -->
                   <li class="list-group-item">
                     <b>下载地址</b> <a class="pull-right">{{ $v.PkgURL }}</a>
                   </li>
@@ -155,8 +153,8 @@
                   <td>{{ .PkgURL }}</td>
                   <td>{{date .ReleaseDate }}</td>
                   <td>
-                    <a class="btn btn-default btn-xs" title="版本修改" data-href="/pdf/versions/{{.Version.Version}}" data-target="#modal-detail"
-                      data-toggle="modal"><i class="fa fa-pencil text-green"></i></a>
+                    <a class="btn btn-default btn-xs" title="版本修改" data-href="/pdf/versions/{{.Version.Version}}"
+                      data-target="#modal-detail" data-toggle="modal"><i class="fa fa-pencil text-green"></i></a>
                   </td>
                 </tr>
                 {{end}}

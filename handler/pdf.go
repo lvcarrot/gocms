@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"sdbackend/domain"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -201,9 +202,11 @@ func GetPDFVersion(w http.ResponseWriter, r *http.Request) {
 		v       = mux.Vars(r)["version"]
 		data    = make(map[string]interface{})
 	)
+	now := time.Now().In(local)
 	if v == "new" {
 		version = &domain.Version{
-			Version: "new",
+			Version:     "new",
+			ReleaseDate: &now,
 		}
 	} else {
 		version, err = model.GetPDFVersion(v)
@@ -284,6 +287,7 @@ func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("%#v", version)
+	version.Version = strings.TrimSpace(version.Version)
 	if version.Version == "" ||
 		version.PkgURL == "" ||
 		version.PkgSize == 0 ||
@@ -292,8 +296,12 @@ func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 		jFailed(w, http.StatusBadRequest, "invalid param")
 		return
 	}
-	typ := mux.Vars(r)["version"]
+	var (
+		typ = mux.Vars(r)["version"]
+		now = time.Now().In(local)
+	)
 	if typ == "new" {
+		version.ReleaseDate = &now
 		if _, err := model.GetPDFVersion(version.Version); err == nil {
 			jFailed(w, http.StatusBadRequest, "当前版本号已存在")
 			return
@@ -308,7 +316,6 @@ func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 			jFailed(w, http.StatusBadRequest, "版本不存在")
 			return
 		}
-		now := time.Now().In(local)
 		version.ID = v.ID
 		version.ReleaseDate = &now
 		if err := model.UpdatePDFVesion(&version); err != nil {

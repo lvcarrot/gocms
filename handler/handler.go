@@ -180,7 +180,7 @@ func Start(path string) error {
 			if t == nil {
 				return "无"
 			}
-			return t.In(time.Local).Format(time.RFC3339)
+			return t.In(time.Local).Format("2006-01-02 15:04:05")
 		},
 		"html": func(s string) template.HTML {
 			return template.HTML(s)
