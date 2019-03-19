@@ -24,16 +24,17 @@
           <span class="glyphicon glyphicon-lock form-control-feedback"></span>
         </div>
         <div class="row">
+        <!--
           <div class="col-xs-6 form-group has-feedback">
             <input name="code" type="text" class="form-control" autocomplete="off" placeholder="验证码" data-rule="{'messages':{'required':'验证码不能为空'}}"
               required>
           </div>
+        -->
           <div class="col-xs-4 pull-right">
             <input type="hidden" name="id" value="{{.captcha}}">
             <button type="submit" class="btn btn-primary btn-block btn-flat">登录</button>
           </div>
         </div>
-        <img class="img-responsive" src="/captcha/{{.captcha}}.png?">
       </form>
     </div>
   </div>
