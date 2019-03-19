@@ -41,7 +41,7 @@
           Release
         </label>
         <label class="radio-inline">
-          <input type="radio" name="version_type" value="0" {{if eq $v.VersionType 2}} checked {{end}}>
+          <input type="radio" name="version_type" value="0" {{if eq $v.VersionType 0}} checked {{end}}>
           Beat
         </label>
       </div>
