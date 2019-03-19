@@ -8,7 +8,12 @@
     <div class="form-group">
       <label class="col-sm-2 control-label">版本号</label>
       <div class="col-sm-3">
-        <input type="text" class="form-control" name="version" data-rule="{'maxlength':64}" required {{if ne $v.Version "new"}} value = "{{$v.Version}}" readonly {{end}}>
+        {{if eq $v.Version "new"}}
+        <input type="text" class="form-control" name="version" data-rule="{'maxlength':64}" required>
+        {{else}}
+        <p class="form-control">{{$v.Version}}</p>
+        <input type="hidden" class="form-control" name="version" value="{{$v.Version}}">
+        {{end}}
       </div>
     </div>
     <div class="form-group">
@@ -44,7 +49,7 @@
     <div class="form-group">
       <label class="col-sm-2 control-label">发布说明</label>
       <div class="col-sm-8">
-        <textarea class="form-control" rows="3" name="release_note" >{{ $v.ReleaseNote }}</textarea>
+        <textarea class="form-control" rows="3" name="release_note">{{ $v.ReleaseNote }}</textarea>
       </div>
     </div>
     <div class="form-group">
@@ -74,8 +79,7 @@
     <div class="form-group">
       <label class="col-sm-2 control-label">上传</label>
       <div class="col-sm-8">
-        <input type="file" data-upload-url="/upload" data-show-preview="false" data-show-remove="false"
-          data-language="zh">
+        <input type="file" data-upload-url="/upload" data-show-preview="false" data-show-remove="false" data-language="zh">
       </div>
     </div>
   </div>

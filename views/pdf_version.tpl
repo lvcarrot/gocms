@@ -28,7 +28,7 @@
                 </div>
               </div>
               {{if .data.web }}
-              {{$v := .data.web.Version}}
+              {{$v := .data.web}}
               <div class="box-body box-profile">
                 <ul class="list-group list-group-unbordered">
                   <li class="list-group-item">
@@ -78,7 +78,7 @@
                 </div>
               </div>
               {{if .data.api }}
-              {{$v := .data.api.Version}}
+              {{$v := .data.api}}
               <div class="box-body box-profile">
                 <ul class="list-group list-group-unbordered">
                   <li class="list-group-item">

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"gocms/model"
 	"gocms/util"
-	"log"
 	"net/http"
 	"sdbackend/domain"
 	"strings"
@@ -170,25 +169,30 @@ func KitTipStats(w http.ResponseWriter, r *http.Request) {
 func GetPDFVersions(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
 	if nums, err := model.TotalPDFVersions(); err == nil && nums > 0 {
-		p := util.NewPaginator(r, int64(nums))
+		var (
+			p        = util.NewPaginator(r, int64(nums))
+			api, web = model.GetPDFReleaseVersion()
+		)
 		if versions, err := model.GetPDFVersions(p.PerPageNums, p.Offset()); err == nil {
 			data["list"] = versions
-			api, web := model.GetPDFReleaseVersion()
-			log.Println("api:", api, " web:", web)
 			for i := range versions {
 				if versions[i].Version.Version == api {
-					data["api"] = &versions[i]
 					versions[i].ReleaseOnApi = true
 				} else {
 					versions[i].ReleaseOnApi = false
 				}
 				if versions[i].Version.Version == web {
-					data["web"] = versions[i]
 					versions[i].ReleaseOnWeb = true
 				} else {
 					versions[i].ReleaseOnWeb = false
 				}
 			}
+		}
+		if v, err := model.GetPDFVersion(api); err == nil {
+			data["api"] = v
+		}
+		if v, err := model.GetPDFVersion(web); err == nil {
+			data["web"] = v
 		}
 		data["page"] = p
 	}
@@ -286,13 +290,12 @@ func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 		jFailed(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	log.Printf("%#v", version)
 	version.Version = strings.TrimSpace(version.Version)
 	if version.Version == "" ||
 		version.PkgURL == "" ||
 		version.PkgSize == 0 ||
 		version.MD5 == "" ||
-		version.VersionType == 0 {
+		version.UpdateType == 0 {
 		jFailed(w, http.StatusBadRequest, "invalid param")
 		return
 	}
