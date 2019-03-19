@@ -12,6 +12,7 @@
     {{template "navbar" .}}
     <div class="content-wrapper">
       {{template "title" .}}
+      <!--
       <section class="content">
         <div class="row">
           <div class="col-lg-3 col-xs-6">
@@ -80,6 +81,7 @@
           </section>
         </div>
       </section>
+      -->
     </div>
 
     <div class="modal" id="upload-modal">
