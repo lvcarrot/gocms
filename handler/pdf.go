@@ -6,6 +6,7 @@ import (
 	"gocms/util"
 	"net/http"
 	"sdbackend/domain"
+	"strconv"
 	"strings"
 	"time"
 
@@ -328,4 +329,42 @@ func SavePDFVersion(w http.ResponseWriter, r *http.Request) {
 	}
 	model.FlushVesionCache()
 	jSuccess(w, nil)
+}
+
+func PDFRentionsV2(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	var (
+		from      = r.Form.Get("from")
+		to        = r.Form.Get("to")
+		roundStrs = r.Form["r"]
+		rounds    []int
+	)
+	for i := range roundStrs {
+		rd, err := strconv.Atoi(roundStrs[i])
+		if err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		rounds = append(rounds, rd)
+	}
+	if rounds == nil {
+		rounds = []int{1, 3, 7, 30}
+	}
+
+	data := make(map[string]interface{})
+	if nums, err := model.TotalRetentionsV2(rounds, from, to); err == nil && nums > 0 {
+		p := util.NewPaginator(r, nums)
+		if retentions, err := model.GetPDFRentionsV2(p.PerPageNums, p.Offset(), rounds, from, to); err == nil {
+			data["list"] = retentions
+		}
+		data["page"] = p
+	}
+	if result, err := model.GetAvgPDFRetentions(); err == nil {
+		data["avg"] = *result
+	}
+	data["rounds"] = rounds
+	rLayout(w, r, "pdf_retentions_v2.tpl", data)
 }

@@ -256,6 +256,23 @@ func Start(path string) error {
 				return "否"
 			}
 		},
+		"retentionType": func(r int64) string {
+			if r == 0 {
+				return "当日"
+			}
+			if r == 1 {
+				return "次日"
+			}
+			return fmt.Sprintf("%d日", r)
+		},
+		"roundSelected": func(round int, rounds []int) bool {
+			for i := range rounds {
+				if round == rounds[i] {
+					return true
+				}
+			}
+			return false
+		},
 	}
 	// 文件监控
 	watcher, err := fsnotify.NewWatcher()

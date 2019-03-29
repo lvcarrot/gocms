@@ -180,6 +180,40 @@ func TotalPDFInstallRuns() (int64, error) {
 	return total, nil
 }
 
+func GetPDFRentionsV2(limit, offset int, rounds []int, from, to string) ([]*Retentions, error) {
+	var ins []*Retentions
+	db := db.New().Model(&Retentions{}).Where("round in (?)", rounds)
+	if from != "" {
+		db = db.Where("date >= ?", from)
+	}
+	if to != "" {
+		db = db.Where("date <= ?", to)
+	}
+	dbResult := db.Order("date DESC").Limit(limit).Offset(offset).Find(&ins)
+	if dbResult.RecordNotFound() {
+		return nil, nil
+	}
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return ins, nil
+}
+
+func TotalRetentionsV2(rounds []int, from, to string) (int64, error) {
+	var total int64
+	db := db.New().Model(&Retentions{}).Where("round in (?)", rounds)
+	if from != "" {
+		db = db.Where("date >= ?", from)
+	}
+	if to != "" {
+		db = db.Where("date <= ?", to)
+	}
+	if err := db.Count(&total).Error; err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
 func GetPDFRentions(limit, offset int) ([]RetentionView, error) {
 	var (
 		dates      []string
