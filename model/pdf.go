@@ -189,7 +189,7 @@ func GetPDFRentionsV2(limit, offset int, rounds []int, from, to string) ([]*Rete
 	if to != "" {
 		db = db.Where("date <= ?", to)
 	}
-	dbResult := db.Order("date DESC").Limit(limit).Offset(offset).Find(&ins)
+	dbResult := db.Order("date DESC").Order("round ASC").Limit(limit).Offset(offset).Find(&ins)
 	if dbResult.RecordNotFound() {
 		return nil, nil
 	}
