@@ -75,6 +75,12 @@
         </div>
         <div class="box">
           <div class="box-header with-border">
+            <div class="nav-tabs-custom">
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="/pdf/v2/retentions" class="text-purple">总体留存</a></li>
+                <li><a href="/pdf/qd/retentions" class="text-red">渠道留存</a></li>
+              </ul>
+            </div>
             <div class="box-title">PDF留存率</div>
             <div class="box-tools visible-lg">
               <form class="form-inline">

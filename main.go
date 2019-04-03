@@ -86,6 +86,7 @@ func main() {
 	s.HandleFunc("/p2w/qdlist", handler.P2WQDList).Methods(http.MethodGet)
 	s.HandleFunc("/pdf/install_runs", handler.PDFInstallRuns).Methods(http.MethodGet)
 	s.HandleFunc("/pdf/retentions", handler.PDFRentions).Methods(http.MethodGet)
+	s.HandleFunc("/pdf/qd/retentions", handler.QDRetentions).Methods(http.MethodGet)
 	s.HandleFunc("/pdf/v2/retentions", handler.PDFRentionsV2).Methods(http.MethodGet)
 	s.HandleFunc("/pdf/mfshow_versions", handler.MFShowVersions).Methods(http.MethodGet)
 	s.HandleFunc("/pdf/feedbacks", handler.Feedbacks).Methods(http.MethodGet)

@@ -3,9 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
-	"fmt"
 	"gocms/model"
 	"gocms/util"
 )
@@ -30,7 +30,6 @@ func QDList(w http.ResponseWriter, r *http.Request) {
 
 	if user.Group.ID == 1 || user.Group.Name == "data_admin" {
 		qds, err = model.AllQDs()
-		fmt.Println(qds)
 		if err != nil {
 			http.NotFound(w, r)
 			return
@@ -175,7 +174,6 @@ func QDSettleMonth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := make(map[string]interface{})
-	fmt.Println(qds)
 	if qds != nil {
 		if qd := strings.TrimSpace(r.Form.Get("qd")); len(qd) > 0 && qd != "all" {
 			check := false
@@ -201,4 +199,47 @@ func QDSettleMonth(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	rLayout(w, r, tpl, data)
+}
+
+func QDRetentions(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var (
+		qd        = strings.TrimSpace(r.Form.Get("qd"))
+		from      = r.Form.Get("from")
+		to        = r.Form.Get("to")
+		roundStrs = r.Form["r"]
+		rounds    []int
+	)
+	for i := range roundStrs {
+		rd, err := strconv.Atoi(roundStrs[i])
+		if err != nil {
+			jFailed(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		rounds = append(rounds, rd)
+	}
+	if rounds == nil {
+		rounds = []int{1, 3, 7, 30}
+	}
+	if qd == "all" {
+		qd = ""
+	}
+
+	data := make(map[string]interface{})
+	if nums, err := model.TotalQDRetention(rounds, from, to, qd); err == nil && nums > 0 {
+		p := util.NewPaginator(r, nums)
+		if retentions, err := model.GetQDRetentions(p.PerPageNums, p.Offset(), rounds, from, to, qd); err == nil {
+			data["list"] = retentions
+		}
+		data["page"] = p
+	}
+	if result, err := model.GetAvgPDFRetentions(); err == nil {
+		data["avg"] = *result
+	}
+	data["rounds"] = rounds
+	rLayout(w, r, "qd_retentions.tpl", data)
 }

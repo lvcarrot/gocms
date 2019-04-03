@@ -366,5 +366,6 @@ func PDFRentionsV2(w http.ResponseWriter, r *http.Request) {
 		data["avg"] = *result
 	}
 	data["rounds"] = rounds
+
 	rLayout(w, r, "pdf_retentions_v2.tpl", data)
 }

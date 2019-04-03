@@ -106,3 +106,43 @@ func TotalMonthSettleByQD(qds []string) (int64, error) {
 
 	return total, nil
 }
+
+func GetQDRetentions(limit, offset int, rounds []int, from, to, qd string) ([]*domain.QDRetention, error) {
+	var ins []*domain.QDRetention
+	db := db.New().Model(&domain.QDRetention{}).Where("round in (?)", rounds)
+	if from != "" {
+		db = db.Where("date >= ?", from)
+	}
+	if to != "" {
+		db = db.Where("date <= ?", to)
+	}
+	if qd != "" {
+		db = db.Where("qd  = ?", qd)
+	}
+	dbResult := db.Order("date DESC").Order("round ASC").Limit(limit).Offset(offset).Find(&ins)
+	if dbResult.RecordNotFound() {
+		return nil, nil
+	}
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return ins, nil
+}
+
+func TotalQDRetention(rounds []int, from, to, qd string) (int64, error) {
+	var total int64
+	db := db.New().Model(&domain.QDRetention{}).Where("round in (?)", rounds)
+	if from != "" {
+		db = db.Where("date >= ?", from)
+	}
+	if to != "" {
+		db = db.Where("date <= ?", to)
+	}
+	if qd != "" {
+		db = db.Where("qd = ?", qd)
+	}
+	if err := db.Count(&total).Error; err != nil {
+		return 0, err
+	}
+	return total, nil
+}
