@@ -2,12 +2,18 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
+	"gocms/util"
 	"net/http"
+	"sdbackend/domain"
+	"sdbackend/utils"
 	"strconv"
 	"strings"
+	"time"
 
 	"gocms/model"
-	"gocms/util"
+
+	"github.com/gorilla/mux"
 )
 
 func QDList(w http.ResponseWriter, r *http.Request) {
@@ -242,4 +248,62 @@ func QDRetentions(w http.ResponseWriter, r *http.Request) {
 	}
 	data["rounds"] = rounds
 	rLayout(w, r, "qd_retentions.tpl", data)
+}
+
+func QDPrices(w http.ResponseWriter, r *http.Request) {
+	data := make(map[string]interface{})
+	if nums, err := model.QDPricesTotal("", ""); err == nil && nums > 0 {
+		p := util.NewPaginator(r, nums)
+		if prices, err := model.QDPrices(p.PerPageNums, p.Offset(), "", ""); err == nil {
+			data["list"] = prices
+		}
+		data["page"] = p
+	}
+	rLayout(w, r, "qd_prices.tpl", data)
+}
+
+func QDPriceAdd(w http.ResponseWriter, r *http.Request) {
+	now := time.Now().In(utils.Location())
+	data := &domain.GroupCoefficient{
+		Start: now.AddDate(0, 0, 1).Format("2006-01-02"),
+	}
+	if err := t.ExecuteTemplate(w, "qd_price_add.tpl", data); err != nil {
+		w.Write([]byte(err.Error()))
+	}
+
+}
+
+func QDPriceEdit(w http.ResponseWriter, r *http.Request) {
+	qd := mux.Vars(r)["qd"]
+	ins, err := model.GetQDPriceByQD(qd)
+	if err != nil || ins == nil {
+		rLayout(w, r, "error.tpl", nil)
+		return
+	}
+
+	fmt.Println(*ins)
+	if err := t.ExecuteTemplate(w, "qd_price_edit.tpl", ins); err != nil {
+		w.Write([]byte(err.Error()))
+	}
+}
+
+func SaveQDPrice(w http.ResponseWriter, r *http.Request) {
+	var ins domain.GroupCoefficient
+	if err := r.ParseForm(); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := util.ParseForm(r.Form, &ins); err != nil {
+		jFailed(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if ins.Coefficient == 0 || ins.QD == "" {
+		jFailed(w, http.StatusBadRequest, "invalid param")
+		return
+	}
+	if err := model.SaveQDPrice(&ins); err != nil {
+		jFailed(w, http.StatusInternalServerError, "保存错误，请联系管理员!")
+		return
+	}
+	jSuccess(w, nil)
 }

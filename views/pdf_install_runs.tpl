@@ -68,7 +68,8 @@
             </div>
             <div class="box-tools">
               <form class="form-inline">
-                <a class="btn bg-olive btn-sm btn-export" href="?export=xls" title="导出">导出 <i class="fa fa-file-excel-o"></i></a>
+                <a class="btn bg-olive btn-sm btn-export" href="?export=xls" title="导出">导出 <i
+                    class="fa fa-file-excel-o"></i></a>
               </form>
             </div>
           </div>

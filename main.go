@@ -96,6 +96,10 @@ func main() {
 	s.HandleFunc("/bundle_install", handler.BundleInstall).Methods(http.MethodGet)
 	s.HandleFunc("/mininews", handler.MiniNewsStats).Methods(http.MethodGet)
 	s.HandleFunc("/kittips", handler.KitTipStats).Methods(http.MethodGet)
+	s.HandleFunc("/pdf/qd/prices", handler.QDPrices).Methods(http.MethodGet)
+	s.HandleFunc("/pdf/qd/prices/{qd}", handler.QDPriceAdd).Queries("action", "add").Methods(http.MethodGet)
+	s.HandleFunc("/pdf/qd/prices/{qd}", handler.QDPriceEdit).Queries("action", "edit").Methods(http.MethodGet)
+	s.HandleFunc("/pdf/qd/price", handler.SaveQDPrice).Queries("action", "save").Methods(http.MethodPost)
 
 	s.HandleFunc("/versions/pdf", handler.GetPDFVersions).Methods(http.MethodGet)
 	s.HandleFunc("/pdf/versions/list", handler.GetPDFVersionList).Methods(http.MethodGet)
