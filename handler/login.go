@@ -55,7 +55,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Values["user"] = user
 	if _, exist := r.PostForm["remember"]; !exist {
-		session.Options.MaxAge = 3600
+		session.Options.MaxAge = 3600 * 24
 	}
 	if err = session.Save(r, w); err != nil {
 		jFailed(w, http.StatusForbidden, err.Error())
