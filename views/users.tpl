@@ -197,6 +197,7 @@
       </div>
     </div>
     {{end}}
+    {{template "modal"}}
     {{template "footer"}}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/jstree.min.js"></script>
     <script type="text/javascript">
